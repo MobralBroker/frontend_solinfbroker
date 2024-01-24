@@ -42,7 +42,6 @@
                             id="emai"
                             name="email"
                             placeholder="digite seu email"
-                            :rules="validateEmail"
                             v-model="formUser.email"
                   />
                 
@@ -51,8 +50,7 @@
 
 
                 <CInputGroup class="mb-3">
-                  <CInputGroupText>
-                    <CIcon icon="cil-lock-locked" />
+                  <CInputGroupText><CIcon icon="cil-lock-locked" />
                   </CInputGroupText>
 
                   <CFormInput
@@ -60,7 +58,6 @@
                         id="senha"
                         name="senha"
                         placeholder="Digite sua senha"
-                        :rules="validatePassword"
                         v-model="formUser.senha"
                   />
                 </CInputGroup>
@@ -75,7 +72,6 @@
                         id="cpf"
                         name="cpf"
                         placeholder="Digite seu CPF sem pontos ou traços"
-                        :rules="validateCPF"
                         v-model="formUser.pessoaFisica[0].cpf"
                   />
                 </CInputGroup>
@@ -94,7 +90,7 @@
                   />
                 </CInputGroup>  
                 <div class="d-grid">
-                  <CButton color="success" @click="RegisterUser" >Criar Conta</CButton>
+                  <CButton color="success" @click="this.valida_Registro(this.formUser.email, this.formUser.senha, this.formUser.pessoaFisica[0].cpf)" >Criar Conta</CButton>
                 </div>
               </CForm>
             </CCardBody>
@@ -165,44 +161,113 @@
                 }catch(error){
                         swal({
                         title: 'Erro!',
-                        text: 'Nome ou Email ja cadastrados!!',
+                        text: 'Erro de conexão com banco de dados!',
                         icon: 'error',
-                    });
+                      });
                 }     
             },
 
-            validateEmail(value){                
+            validateEmail(value){     
+              console.log(value)       
                 const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
                 if (!regex.test(value)) {
+                    //console.log("Email errado")
                     return 'Este tipo de Email é invalido!';
                 }
                 // All is good
-                return true;
+                //console.log("Email certo")
+                return true
             },
             
-            validatePassword(value){
-                
+            validatePassword(value){    
                 if(!value){
+                    //console.log("Senha vazia")
                     return 'Campo obrigatorio!'
-                }
-                
+                }    
                 if(value.includes(' ')){
+                    //console.log("Senha com espaços")
                     return "Senha não pode obter espaços"
                 }
-                if(value.length<=8 && value.length>=3){
-                    return true
+                if(!(value.length<=8 && value.length>=3)){
+                    //console.log("Senha muito grande ou pequena")
+                    return 'A senha deve obter entre 3 e 8 caracters!'
                 }
-                return 'A senha deve obter entre 3 e 8 caracters!'
+                //All is good
+                return true
                 
             },            
             validateCPF(value){
-            
-                //TODO VALIDAt  E CPF
+                var cpf_sum = 0
+                var cpf_remain = 0
+                var i = 0
+                if(!value){
+                  return 'Campo obrigatório!'
+                }
+                if(value.includes('-') || value.includes('.')){
+                  return 'CPF não pode conter pontos ou traços'
+                }
+                for(i=1; i<=9; i++){
+                  cpf_sum = cpf_sum + parseInt(value.substring(i-1, i)) * (11 - i)
+                }
+                cpf_remain = (cpf_sum * 10) % 11
+                if ((cpf_remain == 10) || (cpf_remain == 11)){
+                  cpf_remain = 0
+                }
+                if(cpf_remain != parseInt(value.substring(10, 11))){
+                  //console.log("cpf inválido, primeiro dig_id")
+                  return 'CPF inválido'
+                }
+                cpf_sum = 0
+                for(i=1; i<=10; i++){
+                  cpf_sum = cpf_sum + parseInt(value.substring(i-1, i)) * (12 - i)
+                }
+                cpf_remain = (cpf_sum * 10) % 11
+                if ((cpf_remain == 10) || (cpf_remain == 11)){
+                  cpf_remain = 0
+                }
+                if(cpf_remain != parseInt(value.substring(10, 11))){
+                  //console.log("cpf inválido, segundo dig_id")
+                  return 'CPF inválido'
+                }
+                //All is good
+                return true
+            },
+            valida_Registro(email, senha, cpf){
+              //console.log(email + " " + senha + " " + cpf)
+              //Recebe o resultado de cada um dos testes em uma variável
+              var test1 = this.validateEmail(email)
+              var test2 = this.validatePassword(senha)
+              var test3 = this.validateCPF(cpf)
 
-                
-            }
-            
-        }
+              //Testa se os testes foram verdadeiros ou falsos para 
+              if(test1 != true){
+                swal({
+                  title: 'Erro!',
+                  text: 'Email inválido, por favor ajuste.',
+                  icon: 'error',
+                })
+              }else{
+                if(test2 != true){
+                  swal({
+                    title: 'Erro!',
+                    text: 'Senha inválida, pro favor ajuste. Lembre que a senha precisa ter de 3 a 8 caracteres.',
+                    icon: 'error',
+                  })
+                }else{
+                  if(test3 != true){
+                    swal({
+                      title: 'Erro!',
+                      text: 'Inválido, por favor insira um CPF correto.',
+                      icon: 'error',
+                    })
+                  }else{
+                    this.RegisterUser()
+                    return true
+                  }
+                }
+              }
+            },     
+        },
     }
 
 </script>
