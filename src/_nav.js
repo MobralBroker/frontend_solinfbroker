@@ -25,6 +25,12 @@ export default [
     to: '/ordens',
     icon: 'cilMagnifyingGlass',
   },
+  {
+    component: 'CNavItem',
+    name: 'Chartboard',
+    to: '/charts',
+    icon: 'cilChartPie',
+  },
   // {
   //   component: 'CNavItem',
   //   name: 'Typography',

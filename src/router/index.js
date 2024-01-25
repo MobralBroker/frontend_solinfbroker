@@ -10,12 +10,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'login',
-      component: ()=>import('../views/login/Login.vue')
+      component: () => import('../views/login/Login.vue')
     },
     {
       path: '/home',
       name: 'home',
-      component: DefaultLayout,      
+      component: DefaultLayout,
       children: [
         {
           path: '',
@@ -28,50 +28,58 @@ const router = createRouter({
           name: 'carteira',
           component: () => import('../views/carteira/Carteira.vue'),
           meta: { requireAuth: true }
-    
+
         },
         {
           path: '/ordens',
           name: 'ordens',
           component: () => import('../views/ordens/Ordens.vue'),
           meta: { requireAuth: true }
-    
+
         },
+        {
+          path: '/charts',
+          name: 'charts',
+          component: () => import('../views/charts/Chartsboard.vue'),
+          meta: { requireAuth: true }
+
+        },
+        
       ]
-    },
-    {
-      path: '/register',
-      name: 'register',
-      
-      component: () => import('../views/register/Register.vue')
-    },    
+},
+  {
+    path: '/register',
+    name: 'register',
+
+    component: () => import('../views/register/Register.vue')
+  },    
   ]
 })
 
-  router.beforeEach((to, from, next) => {
-     next()
-     if (to.matched.some((record) => record.meta.requireAuth)) {
-       if (localStorage.getItem('token') == null) {
-         next({
-           path: '/',
-         });
-       } else {
-         next();
-       }
-     } else {
-       next();
-     }
-   });
-   
-   
-   router.beforeResolve((to,from,next)=>{
-     if(to.name){
-       NProgress.start()
-     }
-     next()
-   })
-   router.afterEach((to,from)=>{
-     NProgress.done()
-   })
-   
-   export default router
+router.beforeEach((to, from, next) => {
+  next()
+  if (to.matched.some((record) => record.meta.requireAuth)) {
+    if (localStorage.getItem('token') == null) {
+      next({
+        path: '/',
+      });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
+
+router.beforeResolve((to, from, next) => {
+  if (to.name) {
+    NProgress.start()
+  }
+  next()
+})
+router.afterEach((to, from) => {
+  NProgress.done()
+})
+
+export default router
