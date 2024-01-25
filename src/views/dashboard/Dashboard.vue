@@ -98,12 +98,6 @@
     
     
 
-      <div>
-        <Chart />
-  <CryptoMarket />
-  <Snaps/>
-  <Screener/>
-    </div>
 
     
     </CCol>
@@ -115,7 +109,6 @@
 
 
 <script>
-import { Chart } from 'vue-tradingview-widgets';
 
 import service from '../../service/controller';
 import swal from 'sweetalert';
@@ -123,7 +116,6 @@ import swal from 'sweetalert';
 export default {
   name: 'Dashboard',
   components: {
-    Chart,
   },
   data() {
     

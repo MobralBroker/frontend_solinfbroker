@@ -25,6 +25,12 @@ export default [
     to: '/ordens',
     icon: 'cilMagnifyingGlass',
   },
+  {
+    component: 'CNavItem',
+    name: 'Book de Ofertas',
+    to: '/book',
+    icon: 'cilPencil',
+  },
   // {
   //   component: 'CNavItem',
   //   name: 'Typography',

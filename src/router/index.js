@@ -37,6 +37,11 @@ const router = createRouter({
           meta: { requireAuth: true }
     
         },
+        {
+          path: '/book',
+          name: 'book',
+          component: () => import('../views/book/BookOfertas.vue')
+        },
       ]
     },
     {
