@@ -21,7 +21,7 @@ export default [
   },
   {
     component: 'CNavItem',
-    name: 'Ordens',
+    name: 'Minhas Ordens',
     to: '/ordens',
     icon: 'cilMagnifyingGlass',
   },
