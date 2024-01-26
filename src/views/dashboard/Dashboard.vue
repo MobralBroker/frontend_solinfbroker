@@ -23,10 +23,7 @@
                   <CFormSwitch v-model="switchValue" :switch="{ color: 'success' }" size="xl" label="Vender" id="formSwitchCheckDefaultXL"/>
                 </CListGroup>
                 <br>
-                <CButton color="success" shape="rounded-pill" class="px-8" @click="Order" style="color: white;">Enviar Oderm</CButton>
-
-                <CButton color="info" shape="rounded-pill" class="px-8" @click="sendMessage(`ALX`)" style="color: white;">Enviar Oderm</CButton>
-
+                <CButton color="info" shape="rounded-pill" class="px-8" @click="Order" style="color: white;">Enviar Oderm</CButton>
               </CCol>
 
 
@@ -95,10 +92,6 @@
 
     <CRow>
     <CCol :md="12">
-    
-    
-
-
     
     </CCol>
    </CRow>
@@ -237,21 +230,16 @@ export default {
 
   created: function () {
     const token = localStorage.getItem('token')
-      console.log(token)
-      console.log("starting conexao")
-
       document.cookie = 'X-Authorization=' + token + '; path=/';
-      //var connection = new WebSocket("ws://" + token + "@localhost:8086/chat");
-
         this.connection = new WebSocket("ws://localhost:8086/chat")
     
       this.connection.onopen = function (event){
         console.log(event)
-        console.log("conectado")
+        console.log("WS conectado")
       }
 
       this.connection.onmessage = function(event){
-        console.log(event)
+        console.log(event.data)
       }
       this.connection.onerror = function(event) {
     console.error("Erro no WebSocket:", event);
@@ -259,7 +247,7 @@ export default {
 
 // Evento disparado quando a conexão é fechada
 this.connection.onclose = function(event) {
-    console.log("Conexão WebSocket fechada:", event);
+    console.log("Conexão WS fechada:", event);
 };
 
   },

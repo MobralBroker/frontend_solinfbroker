@@ -31,25 +31,9 @@
               </CTableRow>
               </CTableBody>
               
-              <br>
-              <div class="text-center">              
-                <CButton color="success"  class="px-8 text-center" @click="listarOrdens()" style="color: white;">Atualizar</CButton>
-              </div>
-              <br>
             </CTable>
         </CCard>
-
-
-
-
       </CCol>
-
-
-            
-                        
-
-  
-  
   
   </div>
 </template>
@@ -57,7 +41,6 @@
 <script>
 
 import service from '../../service/controller';
-import swal from 'sweetalert';
 
 export default {
   name: 'Dashboard',
@@ -102,7 +85,6 @@ export default {
     },
 
     getTypeByType(tipoOrdem) {
-      console.log(tipoOrdem)
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
           return 'Compra'; // substitua 'status1' pela condição real

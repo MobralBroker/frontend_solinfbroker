@@ -41,19 +41,7 @@
               <br>
             </CTable>
         </CCard>
-
-
-
-
       </CCol>
-
-
-            
-                        
-
-  
-  
-  
   </div>
 </template>
 
@@ -105,7 +93,6 @@ export default {
     },
 
     getTypeByType(tipoOrdem) {
-      console.log(tipoOrdem)
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
           return 'Compra'; // substitua 'status1' pela condição real
@@ -184,7 +171,8 @@ export default {
             text: 'Ordem deletada!',
             icon: 'success',
           }).then(()=>{
-              console.log('deu certo')
+              const idClient = localStorage.getItem('idCliente')
+              this.listarOrdens(idClient);
           });
       } catch(error){
         swal('Erro', 'Ocorreu um erro ao deletar a ordem T.T', 'error');
@@ -196,6 +184,41 @@ export default {
 
   /*  FINISH FUNC'S    */
 
+
+  created: function () {
+    const token = localStorage.getItem('token')
+      console.log(token)
+      console.log("starting conexao")
+
+        document.cookie = 'X-Authorization=' + token + '; path=/';
+        //var connection = new WebSocket("ws://" + token + "@localhost:8086/chat");
+
+        this.connection = new WebSocket("ws://localhost:8086/chat")
+    
+        this.connection.onopen = function (event){
+          console.log(event)
+          console.log("conectado")
+        }
+
+        this.connection.onmessage = function(event){
+          console.log(event.data)
+        }
+
+        this.connection.onerror = function(event) {
+          console.error("Erro no WebSocket:", event);
+        };
+
+        // Evento disparado quando a conexão é fechada
+        this.connection.onclose = function(event) {
+            console.log("Conexão WebSocket fechada:", event);
+        };
+
+  },
+
+
+
+
+
   mounted() {
     const idClient = localStorage.getItem('idCliente')
 
@@ -203,7 +226,7 @@ export default {
     this.listarOrdens(idClient);
 
   },
-
+  
 
 }
 </script>
