@@ -170,6 +170,22 @@ export default{
         }
     },
 
+    async getAllOrderns(){
+        
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
+
+        const listOderns = await crudApi.get(`/ordem`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return listOderns.data;
+    },
 
 }
 

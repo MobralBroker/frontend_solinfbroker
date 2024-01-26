@@ -21,9 +21,15 @@ export default [
   },
   {
     component: 'CNavItem',
-    name: 'Ordens',
+    name: 'Minhas Ordens',
     to: '/ordens',
     icon: 'cilMagnifyingGlass',
+  },
+  {
+    component: 'CNavItem',
+    name: 'Book de Ofertas',
+    to: '/book',
+    icon: 'cilPencil',
   },
   // {
   //   component: 'CNavItem',

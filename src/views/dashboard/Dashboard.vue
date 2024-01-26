@@ -24,6 +24,9 @@
                 </CListGroup>
                 <br>
                 <CButton color="success" shape="rounded-pill" class="px-8" @click="Order" style="color: white;">Enviar Oderm</CButton>
+
+                <CButton color="info" shape="rounded-pill" class="px-8" @click="sendMessage(`ALX`)" style="color: white;">Enviar Oderm</CButton>
+
               </CCol>
 
 
@@ -88,12 +91,22 @@
         </CCard>
       </CCol>
     </CRow>
-  
-  
+    
+
+    <CRow>
+    <CCol :md="12">
+    
+    
+
+
+    
+    </CCol>
+   </CRow>
   
   
   </div>
 </template>
+
 
 <script>
 
@@ -103,11 +116,11 @@ import swal from 'sweetalert';
 export default {
   name: 'Dashboard',
   components: {
-    
   },
   data() {
     
     return {
+          connection: null ,
           orderSellandBuy: {
                     idCliente:'',
                     idAtivo: '', 
@@ -134,6 +147,7 @@ export default {
     }
   },
   methods:{
+  
 
     handleItemAtivo(item){
       this.selectedAtivo.id = item.id
@@ -211,9 +225,30 @@ export default {
       }
   },
 
+  sendMessage(message) {
+    console.log(this.connection);
+    this.connection.send(message);
+  }
+
   },
+
   
   /*  FINISH FUNC'S    */
+
+  created: function () {
+      console.log("starting conexao")
+      this.connection = new WebSocket("ws://localhost:8086/chat")
+
+      this.connection.onopen = function (event){
+        console.log(event)
+        console.log("conectado")
+      }
+
+      this.connection.onmessage = function(event){
+        console.log(event)
+      }
+
+  },
 
   mounted() {
     this.Ativos();
