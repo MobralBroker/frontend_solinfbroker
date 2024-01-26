@@ -27,7 +27,7 @@
                 <CTableDataCell class="text-center"> <div> {{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByType(item.tipoOrdem)"> {{ getTypeByType(item.tipoOrdem) }} </CBadge> </div> </CTableDataCell>
-                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ item.valorOrdem }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">R$ {{ item.valorOrdem }} </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByStatus(item.statusOrdem)"> {{ item.statusOrdem }} </CBadge> </div> </CTableDataCell>                
                 <CTableDataCell> <CButton color="danger" shape="rounded-pill" class="px-12" @click="deteleOrder(item.id)" style="color: white;"> Cancelar ordem</CButton> </CTableDataCell>
 
