@@ -1,8 +1,5 @@
 <template>
   <div>
-    
-  
-      
       <CCol :md="12">
         
         <CCard class="mb-4">
@@ -14,6 +11,7 @@
                   <CTableHeaderCell class="bg-body-secondary text-center"> Quantidade </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Tipo</CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Valor </CTableHeaderCell>
+                  <CTableHeaderCell class="bg-body-secondary text-center"> Data </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Status </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center">  </CTableHeaderCell>
 
@@ -26,6 +24,7 @@
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByType(item.tipoOrdem)"> {{ getTypeByType(item.tipoOrdem) }} </CBadge> </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ item.valorOrdem }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ item.dataLancamento }} </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByStatus(item.statusOrdem)"> {{ item.statusOrdem }} </CBadge> </div> </CTableDataCell>                
 
               </CTableRow>
@@ -57,8 +56,9 @@ export default {
                     valorOrdem: '',
                     quantidadeOrdem: null
           },
+
           vetorOrderns: [],
-          
+                    
           userProfile: {
           },
 
@@ -107,14 +107,13 @@ export default {
    
     async listarAllOrdens(){
       try{
-            const listOderns = await service.getAllOrderns()
-            console.log(listOderns)
+            const listOderns = await service.getAllOrders()
             if (Array.isArray(listOderns)) {
-
               this.vetorOrderns = listOderns.map(ordem => {   
                 return {
                     id: ordem.id,
                     idAtivo: ordem.idAtivo,
+                    dataLancamento: ordem.dataLancamento,
                     sigla: ordem.ativo.sigla,
                     idCliente: ordem.idCliente,
                     quantidadeOrdem: ordem.quantidadeOrdem,
@@ -146,8 +145,34 @@ export default {
         console.log(error)
       }
       
-  },
+    },
 
+    async wsSocket() {
+    const token = localStorage.getItem('token');
+    document.cookie = 'X-Authorization=' + token + '; path=/';
+    this.connection = new WebSocket("ws://localhost:8086/chat");
+
+    this.connection.onopen = (event) => { // Usando arrow function
+      console.log(event);
+      console.log("WS conectado");
+    };
+
+    this.connection.onmessage = (event) => { // Usando arrow function
+      var jsonObj = JSON.parse(event.data);
+
+      console.log("vetorOrderns :::::", this.vetorOrderns);
+      console.log("jsonObj :::::", jsonObj);
+      console.log("event.data :::::", event.data);
+    };
+
+    this.connection.onerror = (event) => { // Usando arrow function
+      console.error("Erro no WebSocket:", event);
+    };
+
+    this.connection.onclose = (event) => { // Usando arrow function
+      console.log("Conexão WS fechada:", event);
+    };
+  }
 
   },
 
@@ -156,9 +181,9 @@ export default {
   mounted() {
     this.getProfile();
     this.listarAllOrdens();
+    this.wsSocket();
 
   },
-
 
 }
 </script>

@@ -170,7 +170,7 @@ export default{
         }
     },
 
-    async getAllOrderns(){
+    async getAllOrders(){
         
         const token = localStorage.getItem('token');        
         if (!token) {
@@ -184,7 +184,7 @@ export default{
             },
         })
         
-        return listAllOderns.data;
+        return listOderns.data;
     },
 
 }

@@ -185,37 +185,6 @@ export default {
   /*  FINISH FUNC'S    */
 
 
-  created: function () {
-    const token = localStorage.getItem('token')
-      console.log(token)
-      console.log("starting conexao")
-
-        document.cookie = 'X-Authorization=' + token + '; path=/';
-        //var connection = new WebSocket("ws://" + token + "@localhost:8086/chat");
-
-        this.connection = new WebSocket("ws://localhost:8086/chat")
-    
-        this.connection.onopen = function (event){
-          console.log(event)
-          console.log("conectado")
-        }
-
-        this.connection.onmessage = function(event){
-          console.log(event.data)
-        }
-
-        this.connection.onerror = function(event) {
-          console.error("Erro no WebSocket:", event);
-        };
-
-        // Evento disparado quando a conexão é fechada
-        this.connection.onclose = function(event) {
-            console.log("Conexão WebSocket fechada:", event);
-        };
-
-  },
-
-
 
 
 

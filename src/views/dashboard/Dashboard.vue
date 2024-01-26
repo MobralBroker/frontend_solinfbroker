@@ -231,7 +231,7 @@ export default {
   created: function () {
     const token = localStorage.getItem('token')
       document.cookie = 'X-Authorization=' + token + '; path=/';
-        this.connection = new WebSocket("ws://localhost:8086/chat")
+        this.connection = new WebSocket("ws://localhost:8086/dash")
     
       this.connection.onopen = function (event){
         console.log(event)
@@ -243,8 +243,8 @@ export default {
       }
       this.connection.onerror = function(event) {
     console.error("Erro no WebSocket:", event);
-};
-
+  };
+  
 // Evento disparado quando a conexão é fechada
 this.connection.onclose = function(event) {
     console.log("Conexão WS fechada:", event);
