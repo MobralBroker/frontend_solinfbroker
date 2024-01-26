@@ -265,8 +265,8 @@ this.connection.onclose = function(event) {
   },
 
   mounted() {
-    //this.Ativos();
-    //this.getProfile();
+    this.Ativos();
+    this.getProfile();
   },
 }
 </script>
