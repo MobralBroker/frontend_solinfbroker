@@ -58,7 +58,7 @@ export default {
           },
 
           vetorOrderns: [],
-                    
+
           userProfile: {
           },
 
@@ -122,7 +122,7 @@ export default {
                     valorOrdem: ordem.valorOrdem
                 };
               });
-              console.log(this.vetorOrderns)
+              //console.log(this.vetorOrderns)
             }            
           } catch(error){
             console.log(error)
@@ -160,9 +160,45 @@ export default {
     this.connection.onmessage = (event) => { // Usando arrow function
       var jsonObj = JSON.parse(event.data);
 
-      console.log("vetorOrderns :::::", this.vetorOrderns);
-      console.log("jsonObj :::::", jsonObj);
-      console.log("event.data :::::", event.data);
+      // if (!Array.isArray(this.vetorOrdens)) {
+      //     this.vetorOrdens = [];
+      // }
+      //var index = this.vetorOrdens.findIndex(ordem => ordem.id === jsonObj.id);
+      //console.log("index :::: " + index)
+      // if (index !== -1) {
+      //   this.vetorOrdens[index] = {
+      //       id: jsonObj.id,
+      //       idAtivo: jsonObj.id_ativo,
+      //       dataLancamento: jsonObj.data_lancamento,
+      //       sigla: '',  
+      //       idCliente: jsonObj.id_cliente,
+      //       quantidadeOrdem: jsonObj.quantidade_ordem,
+      //       statusOrdem: jsonObj.status_ordem,
+      //       tipoOrdem: jsonObj.tipo_ordem,
+      //       valorOrdem: jsonObj.valor_ordem
+      //   };
+      // } else {
+        
+      // }
+
+      const novaOrdem = {
+        id: jsonObj.id,
+        idAtivo: jsonObj.id_ativo,
+        dataLancamento: jsonObj.data_lancamento,
+        sigla: '',  // Preencha o valor desejado para 'sigla'
+        idCliente: jsonObj.id_cliente,
+        quantidadeOrdem: jsonObj.quantidade_ordem,
+        statusOrdem: jsonObj.status_ordem,
+        tipoOrdem: jsonObj.tipo_ordem,
+        valorOrdem: jsonObj.valor_ordem
+      };
+
+
+      console.log('novaOrdem :::: ' + JSON.stringify(novaOrdem, null, 2))
+      
+      this.vetorOrderns.push(novaOrdem);
+      console.log(this.vetorOrderns)
+
     };
 
     this.connection.onerror = (event) => { // Usando arrow function
