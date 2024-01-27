@@ -58,7 +58,7 @@ export default {
           },
 
           vetorOrderns: [],
-
+          vetorAtivos: [],
           userProfile: {
           },
 
@@ -132,7 +132,6 @@ export default {
     async getProfile(){
       const email = localStorage.getItem('userMail')
       const response = await service.getUserProfile(email);
-      console.log(response)
       try{
         this.userProfile = {   
             id: response.id,
@@ -140,11 +139,64 @@ export default {
             saldo: response.saldo,
             email: response.email
         }
-        console.log(this.userProfile)
       } catch(error){
         console.log(error)
       }
       
+    },
+
+    async Ativos(){
+          try{
+              const response = await service.getAtivos();
+              if (Array.isArray(response)) {
+
+                this.vetorAtivos = response.map(item => {   
+                  return {
+                    id: item.id,
+                    sigla: item.sigla,
+                    nome: item.nome,
+                    atualizacao: item.atualizacao,
+                    quantidadesPapeis: item.quantidadesPapeis,
+                    valorMax: item.valorMax,
+                    valorMin: item.valorMin,
+                    valor: item.valor
+                  };
+                });
+              }            
+            } catch(error){
+              console.log(error)
+            }
+    },
+
+    getDateTime(){
+
+      const currentDate = new Date();
+      const timestamp = currentDate.getTime();
+      const data = new Date(timestamp);
+
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const dia = String(data.getDate()).padStart(2, '0');
+      const hora = String(data.getHours()).padStart(2, '0');
+      const minuto = String(data.getMinutes()).padStart(2, '0');
+      const segundo = String(data.getSeconds()).padStart(2, '0');
+      const milissegundo = String(data.getMilliseconds()).padStart(3, '0');
+      const dataLancamento = `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}.${milissegundo}`;
+      
+      return dataLancamento
+    },
+
+    getSigla(id){
+
+      if (Array.isArray(this.vetorAtivos)) {
+        for (const item of this.vetorAtivos) {
+            if (item.id === id){
+              return item.sigla
+            }
+        }
+      }
+      return ''
+
     },
 
     async wsSocket() {
@@ -152,52 +204,49 @@ export default {
     document.cookie = 'X-Authorization=' + token + '; path=/';
     this.connection = new WebSocket("ws://localhost:8086/chat");
 
-    this.connection.onopen = (event) => { // Usando arrow function
-      console.log(event);
+    this.connection.onopen = (event) => { 
       console.log("WS conectado");
     };
 
-    this.connection.onmessage = (event) => { // Usando arrow function
-      var jsonObj = JSON.parse(event.data);
-
-      // if (!Array.isArray(this.vetorOrdens)) {
-      //     this.vetorOrdens = [];
-      // }
-      //var index = this.vetorOrdens.findIndex(ordem => ordem.id === jsonObj.id);
-      //console.log("index :::: " + index)
-      // if (index !== -1) {
-      //   this.vetorOrdens[index] = {
-      //       id: jsonObj.id,
-      //       idAtivo: jsonObj.id_ativo,
-      //       dataLancamento: jsonObj.data_lancamento,
-      //       sigla: '',  
-      //       idCliente: jsonObj.id_cliente,
-      //       quantidadeOrdem: jsonObj.quantidade_ordem,
-      //       statusOrdem: jsonObj.status_ordem,
-      //       tipoOrdem: jsonObj.tipo_ordem,
-      //       valorOrdem: jsonObj.valor_ordem
-      //   };
-      // } else {
-        
-      // }
-
-      const novaOrdem = {
-        id: jsonObj.id,
-        idAtivo: jsonObj.id_ativo,
-        dataLancamento: jsonObj.data_lancamento,
-        sigla: '',  // Preencha o valor desejado para 'sigla'
-        idCliente: jsonObj.id_cliente,
-        quantidadeOrdem: jsonObj.quantidade_ordem,
-        statusOrdem: jsonObj.status_ordem,
-        tipoOrdem: jsonObj.tipo_ordem,
-        valorOrdem: jsonObj.valor_ordem
-      };
-
-
-      console.log('novaOrdem :::: ' + JSON.stringify(novaOrdem, null, 2))
+    this.connection.onmessage = (event) => { 
+      var jsonObj = JSON.parse(event.data); 
       
-      this.vetorOrderns.push(novaOrdem);
-      console.log(this.vetorOrderns)
+      if (Array.isArray(this.vetorOrderns)) {
+      const index = this.vetorOrderns.findIndex(ordem => ordem.id === jsonObj.id);
+
+      if (index !== -1) {
+          const updateOrdem = {
+          id: jsonObj.id,
+          idAtivo: jsonObj.id_ativo,
+          dataLancamento: this.getDateTime(),
+          sigla: this.getSigla(jsonObj.id_ativo),
+          idCliente: jsonObj.id_cliente,
+          quantidadeOrdem: jsonObj.quantidade_ordem,
+          statusOrdem: jsonObj.status_ordem,
+          tipoOrdem: jsonObj.tipo_ordem,
+          valorOrdem: jsonObj.valor_ordem
+        };
+        this.vetorOrderns.splice(index, 0, updateOrdem);
+
+      } else {
+        const novaOrdem = {
+          id: jsonObj.id,
+          idAtivo: jsonObj.id_ativo,
+          dataLancamento: this.getDateTime(),
+          sigla: this.getSigla(jsonObj.id_ativo), 
+          idCliente: jsonObj.id_cliente,
+          quantidadeOrdem: jsonObj.quantidade_ordem,
+          statusOrdem: jsonObj.status_ordem,
+          tipoOrdem: jsonObj.tipo_ordem,
+          valorOrdem: jsonObj.valor_ordem
+        };
+        this.vetorOrderns.push(novaOrdem);
+      }
+  }
+
+
+
+      
 
     };
 
@@ -216,6 +265,7 @@ export default {
 
   mounted() {
     this.getProfile();
+    this.Ativos();
     this.listarAllOrdens();
     this.wsSocket();
 
