@@ -14,8 +14,5 @@ RUN npm install
 # Construa o aplicativo
 RUN npm run build
 
-# Exponha a porta em que o aplicativo estará em execução
-EXPOSE 8082
-
 # Comando para iniciar o aplicativo
 CMD [ "npm", "run", "serve" ]

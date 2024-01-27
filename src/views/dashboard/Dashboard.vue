@@ -28,6 +28,7 @@
                 </CListGroup>
                 <br>
                 <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy(selectedAtivo.valor)" style="color: white;">Enviar Ordem</CButton>
+
               </CCol>
 
 
@@ -92,13 +93,23 @@
         </CCard>
       </CCol>
     </CRow>
-  
-  
+    
+
+    <CRow>
+    <CCol :md="12">
+    
+    
+
+
+    
+    </CCol>
+   </CRow>
   
   
   </div>
 </template>
 <script setup> import { vMaska } from "maska";</script>
+
 
 <script>
 import service from '../../service/controller';
@@ -130,11 +141,11 @@ export const maska_options = {
 export default {
   name: 'Dashboard',
   components: {
-    
   },
   data() {
     
     return {
+          connection: null ,
           orderSellandBuy: {
                     idCliente:'',
                     idAtivo: '', 
@@ -161,6 +172,7 @@ export default {
     }
   },
   methods:{
+  
 
     handleItemAtivo(item){
       this.selectedAtivo.id = item.id
@@ -262,9 +274,30 @@ export default {
       }
     },
 
+  sendMessage(message) {
+    console.log(this.connection);
+    this.connection.send(message);
+  }
+
   },
+
   
   /*  FINISH FUNC'S    */
+
+  created: function () {
+      console.log("starting conexao")
+      this.connection = new WebSocket("ws://localhost:8086/chat")
+
+      this.connection.onopen = function (event){
+        console.log(event)
+        console.log("conectado")
+      }
+
+      this.connection.onmessage = function(event){
+        console.log(event)
+      }
+
+  },
 
   mounted() {
     this.Ativos();
