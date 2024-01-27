@@ -29,6 +29,7 @@
     "apexcharts": "^3.45.2",
     "axios": "^1.6.5",
     "core-js": "^3.31.1",
+    "maska": "^2.1.11",
     "nprogress": "^0.2.0",
     "sweetalert": "^2.1.2",
     "vee-validate": "^4.12.4",
