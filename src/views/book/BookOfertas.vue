@@ -226,9 +226,9 @@ export default {
           tipoOrdem: jsonObj.tipo_ordem,
           valorOrdem: jsonObj.valor_ordem
         };
-        this.vetorOrderns.splice(index, 0, updateOrdem);
-
-      } else {
+      this.vetorOrderns[index] = updateOrdem
+      
+    } else {
         const novaOrdem = {
           id: jsonObj.id,
           idAtivo: jsonObj.id_ativo,
