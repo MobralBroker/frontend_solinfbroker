@@ -9,11 +9,13 @@
       </CHeaderBrand>
       <CHeaderNav class="d-none d-md-flex me-auto">
         <CNavItem>
-          <H5> {{ userProfile.nomeUsuario }}</H5>
+          <div style="  display: flex; align-items: center;">
+            <H5> {{ userProfile.nomeUsuario }}</H5>
+          </div>
         </CNavItem>
       </CHeaderNav>
       <CHeaderNav>
-        <CNavItem>
+        <!-- <CNavItem>
           <CNavLink href="#">
             <CIcon class="mx-2" icon="cil-bell" size="lg" />
           </CNavLink>
@@ -26,8 +28,8 @@
         <CNavItem>
           <CNavLink href="#">
             <CIcon class="mx-2" icon="cil-envelope-open" size="lg" />
-          </CNavLink>
-        </CNavItem>
+          </CNavLink> -->
+        <!-- </CNavItem> -->
         <AppHeaderDropdownAccnt />
       </CHeaderNav>
     </CContainer>

@@ -31,7 +31,7 @@
                       </CListGroup>
                       <br>
 
-                      <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy(selectedAtivo.valor)" style="color: white;">Enviar Ordem</CButton>
+                      <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white;">Enviar Ordem</CButton>
 
                     </CCol>
 
@@ -442,7 +442,7 @@ export default {
       console.log("item")
       console.log(item)
 
-//            Formatando o valor como moeda brasileira
+      // Formatando o valor como moeda brasileira
         this.valorAtivo= new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",
@@ -464,7 +464,7 @@ export default {
                    this.orderSellandBuy.idCliente = this.userProfile.id
                    this.orderSellandBuy.idAtivo = this.selectedAtivo.id
                    this.orderSellandBuy.valorOrdem = value
-
+                  console.log(this.orderSellandBuy);
                 try {
                     await service.sentOrder(this.orderSellandBuy);
                     swal('Sucesso', 'Ordem submetidas com sucesso!', 'success');
@@ -500,8 +500,7 @@ export default {
     },
 
     async getProfile(){
-      const email = localStorage.getItem('userMail')
-      const response = await service.getUserProfile(email);
+      const response = await service.getUserProfile();
       console.log(response)
       try{
         this.userProfile = {   
@@ -516,25 +515,31 @@ export default {
       }
     },
 
-    check_possibleBuy(value){
-      console.log("entrou")
-      value = value.replace("R", "")
-      value = value.replace("$", "")
-      do{
-        value = value.replace(".", "")
-      }while(value.includes("."))
-      value = value.replace(",", ".")
-      value = value.trim()
-      console.log(value)
+    check_possibleBuy(){
+
+      var valorOrdemFormat = this.valorAtivo
+
+      valorOrdemFormat = valorOrdemFormat.replace("R", "");
+      valorOrdemFormat = valorOrdemFormat.replace("$", "");
+      valorOrdemFormat = valorOrdemFormat.replace(" ", "");
+      valorOrdemFormat = valorOrdemFormat.trim();
+      do {
+        valorOrdemFormat = valorOrdemFormat.replace(".", "");
+      } while (valorOrdemFormat.includes("."));
+
+      valorOrdemFormat = valorOrdemFormat.replace(",", ".");
+
+      console.log("this.valorAtivo novo")
+      console.log(this.valorAtivoValue)
       if(this.switchValue == true){
-        this.Order(value)
+        this.Order(valorOrdemFormat)
         return 'Ordem de venda, ignorar'
       }else if(this.switchValue == false){
-        if(value > this.userProfile.saldo){
+        if(valorOrdemFormat > this.userProfile.saldo){
           swal('Aviso', 'A compra que você está tentando fazer excede o seu saldo.', 'warning')
           return 'Saldo baixo, impossível fazer compra'
-        }else if(value <= this.userProfile.saldo){
-          this.Order(value)
+        }else if(valorOrdemFormat <= this.userProfile.saldo){
+          this.Order(valorOrdemFormat)
           return 'Sucesso, saldo alto o bastante'
       }
       }
@@ -542,7 +547,9 @@ export default {
     updateValueSaque(event) {
 
       // Remover caracteres não numéricos, exceto ponto e vírgula
-      const numericValue = parseFloat(event.target.value.replace(/[^\d,.]/g, ""));
+      const numericValue = parseFloat(event.target.value.replace(/[^\d]/g, ""));
+      
+      console.log(event.target.value)
       console.log(numericValue)
       console.log(this.valorAtivoValue)
 
@@ -555,7 +562,7 @@ export default {
         currency: "BRL",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-      }).format(this.valorAtivoValue);
+      }).format(this.valorAtivoValue /100);
       console.log(this.valorAtivo)
     },
     formatarValores(item) {

@@ -22,7 +22,7 @@ export default{
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-        const idCliente = localStorage.getItem('id');    
+        const idCliente = localStorage.getItem('idCliente');    
         const response = await crudApi.get('/cliente/' + idCliente,{
             headers: {
                 'Authorization': `Bearer ${token}`,
