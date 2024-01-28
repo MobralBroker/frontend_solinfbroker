@@ -1,15 +1,15 @@
 <template>
 
   <div>
-    <CRow>
-      <CCol :md="12">
-      <CCard class="mb-4">
+    <CRow class="mb-2" style="  display: flex;"> <!-- flex-direction: column; height: 400px; overflow: hidden;">-->
+      <CCol :md="4">
+      <CCard :mb="4" >
           <CCardHeader>Compra & Venda de Ativos</CCardHeader>
           <CCol :xs="12" class="mb-4" style="padding: 10px;">
             <CCard> 
                 <CCardBody style="padding: 10px;">
                   <CRow >
-                    <CCol :xs="6">
+                    <CCol :xs="12">
 
                       <!-- Compra/Venda -->
                       <CListGroup>
@@ -29,14 +29,13 @@
                         <input class="mb-2" placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem">
                         <CFormSwitch v-model="switchValue" :switch="{ color: 'success' }" size="xl" label="Vender" id="formSwitchCheckDefaultXL"/>
                       </CListGroup>
-                      <br>
 
-                      <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white;">Enviar Ordem</CButton>
+                      <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white; width: 100%;">Enviar Ordem</CButton>
 
                     </CCol>
 
 
-                    <CCol :xs="6">
+                    <!-- <CCol :xs="6">
                       <CCol :xs="10">
                         <CWidgetStatsF color="info" :padding="false" :title="userProfile.email" :value="userProfile.nomeUsuario" >
                           <template #icon><CIcon icon="cil-people" size="xl"/> </template>
@@ -45,29 +44,40 @@
                       </CCol>
                       <br>
                       <CCol :xs="10">
-                        <CWidgetStatsF color="warning" :padding="false" title="SALDO" :value="'R$ ' + userProfile.saldo"> <!-- userProfile.saldo -->
                             <template #icon><CIcon icon="cil-dollar" size="xl"/> </template>
                         </CWidgetStatsF>
                       </CCol>
-                    </CCol>
+                    </CCol> -->
                   </CRow>
                 </CCardBody>
             </CCard>
           </CCol>
         </CCard>
       </CCol>
+      
+      <CCol :md="8">
+        <CCard :mb="4">
+          <CCardHeader>Chart</CCardHeader>
+          <CCardBody style="padding: 10px;">
+          <CCard> 
+          <CCardBody style="padding: 10px;">
+          <div id="chart">
+            <apexchart type="candlestick" height="250" :options="chartOptions" :series="series"></apexchart>
+          </div>
+          </CCardBody>
+          </CCard>
+        </CCardBody>
+        </CCard>
+      </CCol>
     </CRow>
-
-
+    
 
     <CRow>
-      
-      <CCol :md="12">
-        
-        <CCard class="mb-4">
+    <CCol :md="12">
+      <CCard class="mb-4" style="padding-bottom: 10px;">
           <CCardHeader>Destaques de Mercado</CCardHeader>
 
-            <CTable align="middle" class="mb-0 border" hover responsive>
+            <CTable align="middle" class="mb-0 border " responsive hover >
               <CTableHead class="text-nowrap">
                 <CTableRow>
                   <CTableHeaderCell class="bg-body-secondary text-center" > Ativo </CTableHeaderCell>
@@ -89,25 +99,7 @@
             </CTable>
 
         </CCard>
-      </CCol>
-    </CRow>
-    
 
-    <CRow>
-    <CCol :md="12">
-
-      <CCol :md="12">
-        
-        <CCard class="mb-4">
-          <CCardHeader>Chart</CCardHeader>
-          <div id="chart">
-            <apexchart type="candlestick" height="350" :options="chartOptions" :series="series"></apexchart>
-          </div>
-    
-        </CCard>
-
-  </CCol>
-    
     </CCol>
    </CRow>
   
@@ -430,7 +422,7 @@ export default {
   methods:{
   
 
-    handleItemAtivo(item){
+    async handleItemAtivo(item){
       this.selectedAtivo.id = item.id
       this.selectedAtivo.sigla = item.sigla
       this.selectedAtivo.nome = item.nome
@@ -449,6 +441,12 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(item.valor);
+
+      const res = await service.buscarHistorico(item.id);
+      console.log("res", res)
+      console.log("series",this.series)
+      this.series = res
+      // this.$set(this.series,)
     },
 
     async Order(value){

@@ -65,6 +65,21 @@ export default{
         })
         return response.data;
     },
+    async buscarHistorico(id){
+        console.log("id",id)
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
+        const response = await crudApi.get('/historico-preco/grafico/'+id+'?dataInicial=2024-01-25T00:00:00.00&dataFinal=2024-01-28T23:59:59&periodo=minute',{
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                
+            },
+        })
+        return response.data;
+    },
 
     async getDeposito(idCliente, val){
        /* cliente/adicionar-saldo/7?valor=2342502 */
