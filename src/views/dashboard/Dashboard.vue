@@ -1,62 +1,59 @@
 <template>
 
   <div>
-
-  
     <CRow>
       <CCol :md="12">
       <CCard class="mb-4">
+          <CCardHeader>Compra & Venda de Ativos</CCardHeader>
+          <CCol :xs="12" class="mb-4" style="padding: 10px;">
+            <CCard> 
+                <CCardBody style="padding: 10px;">
+                  <CRow >
+                    <CCol :xs="6">
 
-    <CCardHeader>Compra & Venda de Ativos</CCardHeader>
-    <CCol :xs="12" class="mb-4">
-      <CCard>
-        <CCardBody>
-          <CCardBody>
-            <CRow>
-              <CCol :xs="6">
+                      <!-- Compra/Venda -->
+                      <CListGroup>
+                        <CListGroupItem active class="mb-2">Ordem</CListGroupItem>
+                        <!--<CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla"> </CFormInput>-->
+                        <input placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla" class="mb-2" disabled>
+                        <!--<CFormInput placeholder="Valor" autocomplete="Valor" v-model="selectedAtivo.valor"/>-->
+                        <input 
+                                  id="currencyInput"
+                                  v-model="valorAtivo"
+                                  @input="updateValueSaque"
+                                  placeholder="Valor"
+                                  class="mb-2" 
+                                    >
+                        <!-- <input class="mb-2" placeholder = "Valor" type="text" id="text" v-model="selectedAtivo.valor" v-maska:[maska_options] data-maska="0.99" data-maska-tokens="0:\d:multiple|9:\d:optional"> -->
+                        <!--<CFormInput placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />-->
+                        <input class="mb-2" placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem">
+                        <CFormSwitch v-model="switchValue" :switch="{ color: 'success' }" size="xl" label="Vender" id="formSwitchCheckDefaultXL"/>
+                      </CListGroup>
+                      <br>
 
-                <!-- Compra/Venda -->
-                <CListGroup>
-                  <CListGroupItem active>Ordem</CListGroupItem>
-                  <!--<CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla"> </CFormInput>-->
-                  <input placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla">
-                  <!--<CFormInput placeholder="Valor" autocomplete="Valor" v-model="selectedAtivo.valor"/>-->
-                  <input placeholder = "Valor" type="text" id="text" v-model="selectedAtivo.valor" v-maska:[maska_options] data-maska="0.99" data-maska-tokens="0:\d:multiple|9:\d:optional">
-                  <!--<CFormInput placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />-->
-                  <input placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem">
-                  <CFormSwitch v-model="switchValue" :switch="{ color: 'success' }" size="xl" label="Vender" id="formSwitchCheckDefaultXL"/>
-                </CListGroup>
-                <br>
+                      <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy(selectedAtivo.valor)" style="color: white;">Enviar Ordem</CButton>
 
-                <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy(selectedAtivo.valor)" style="color: white;">Enviar Ordem</CButton>
-
-              </CCol>
-
-
-              <CCol :xs="6">
-                <CCol :xs="10">
-                  <CWidgetStatsF color="info" :padding="false" :title="userProfile.email" :value="userProfile.nomeUsuario" >
-                    <template #icon><CIcon icon="cil-people" size="xl"/> </template>
-                  </CWidgetStatsF>
-
-                </CCol>
-                <br>
-                <CCol :xs="10">
-                  <CWidgetStatsF color="warning" :padding="false" title="SALDO" :value="'R$ ' + userProfile.saldo"> <!-- userProfile.saldo -->
-                      <template #icon><CIcon icon="cil-dollar" size="xl"/> </template>
-                  </CWidgetStatsF>
-                </CCol>
-              </CCol>
+                    </CCol>
 
 
-            </CRow>
-          </CCardBody>
-        </CCardBody>
-      </CCard>
-    </CCol>
-         
+                    <CCol :xs="6">
+                      <CCol :xs="10">
+                        <CWidgetStatsF color="info" :padding="false" :title="userProfile.email" :value="userProfile.nomeUsuario" >
+                          <template #icon><CIcon icon="cil-people" size="xl"/> </template>
+                        </CWidgetStatsF>
 
-                        
+                      </CCol>
+                      <br>
+                      <CCol :xs="10">
+                        <CWidgetStatsF color="warning" :padding="false" title="SALDO" :value="'R$ ' + userProfile.saldo"> <!-- userProfile.saldo -->
+                            <template #icon><CIcon icon="cil-dollar" size="xl"/> </template>
+                        </CWidgetStatsF>
+                      </CCol>
+                    </CCol>
+                  </CRow>
+                </CCardBody>
+            </CCard>
+          </CCol>
         </CCard>
       </CCol>
     </CRow>
@@ -84,9 +81,9 @@
                 <CTableRow v-for="item in vetorAtivos" :key="item.id" v-on:click="(handleItemAtivo(item))" >
                 <CTableDataCell class="text-center"> <div>{{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div> {{ item.atualizacao }} </div> </CTableDataCell>
-                <CTableDataCell class="text-center"> <div class="fw-semibold">R$ {{ item.valorMax }}</div> </CTableDataCell>
-                <CTableDataCell class="text-center"> <div class="fw-semibold">R$ {{ item.valorMin }}</div> </CTableDataCell> 
-                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">R$ {{ item.valor }} </div> </CTableDataCell>
+                <CTableDataCell class="text-center"> <div class="fw-semibold">{{ formatarValores(item.valorMax) }}</div> </CTableDataCell>
+                <CTableDataCell class="text-center"> <div class="fw-semibold">{{ formatarValores(item.valorMin) }}</div> </CTableDataCell> 
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ formatarValores(item.valor) }} </div> </CTableDataCell>
               </CTableRow>
             </CTableBody>
             </CTable>
@@ -127,27 +124,6 @@ import VueApexCharts from "vue3-apexcharts";
 
 
 //Valores para v-mask
-export const maska_options = {
-  preProcess: val => val.includes('R$')
-    ? val
-      .replace(/[.]/g, ' ')
-      .replace(/[,]/g, '.')
-      .replace(/[^.0-9]/g, '')
-    : val
-      .replace(/[^.0-9]/g, ''),
-  postProcess: val => {
-    if (!val) return ''
-
-    const sub = 3 - (val.includes('.') ? val.length - val.indexOf('.') : 0)
-
-    return Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    })
-      .format(val)
-      .slice(0, sub ? -sub : undefined)
-  }
-}
 
 export default {
   name: 'Dashboard',
@@ -447,6 +423,8 @@ export default {
           userProfile: {
           },
           switchValue: false,
+          valorAtivo:"R$ 0,00",
+          valorAtivoValue: 0,
     }
   },
   methods:{
@@ -460,7 +438,17 @@ export default {
       this.selectedAtivo.quantidadesPapeis = item.quantidadesPapeis
       this.selectedAtivo.valorMax = item.valorMax
       this.selectedAtivo.valorMin = item.valorMin
-      this.selectedAtivo.valor = item.valor
+      // this.selectedAtivo.valor = item.valor
+      console.log("item")
+      console.log(item)
+
+//            Formatando o valor como moeda brasileira
+        this.valorAtivo= new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(item.valor);
     },
 
     async Order(value){
@@ -529,7 +517,7 @@ export default {
     },
 
     check_possibleBuy(value){
-      console.log(value)
+      console.log("entrou")
       value = value.replace("R", "")
       value = value.replace("$", "")
       do{
@@ -550,6 +538,35 @@ export default {
           return 'Sucesso, saldo alto o bastante'
       }
       }
+    },
+    updateValueSaque(event) {
+
+      // Remover caracteres não numéricos, exceto ponto e vírgula
+      const numericValue = parseFloat(event.target.value.replace(/[^\d,.]/g, ""));
+      console.log(numericValue)
+      console.log(this.valorAtivoValue)
+
+      // Atualizar o valor bruto
+      this.valorAtivoValue = isNaN(numericValue) ? 0 : numericValue;
+
+      // Formatando o valor como moeda brasileira
+      this.valorAtivo = new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(this.valorAtivoValue);
+      console.log(this.valorAtivo)
+    },
+    formatarValores(item) {
+
+    // Formatando o valor como moeda brasileira
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(item );
     },
 
   sendMessage(message) {

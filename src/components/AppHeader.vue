@@ -9,13 +9,7 @@
       </CHeaderBrand>
       <CHeaderNav class="d-none d-md-flex me-auto">
         <CNavItem>
-          <CNavLink href="/dashboard"> Dashboard </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink href="#">Users</CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink href="#">Settings</CNavLink>
+          <H5> {{ userProfile.nomeUsuario }}</H5>
         </CNavItem>
       </CHeaderNav>
       <CHeaderNav>
@@ -45,19 +39,51 @@
 </template>
 
 <script>
+import { CNavItem } from '@coreui/vue'
 import AppBreadcrumb from './AppBreadcrumb'
 import AppHeaderDropdownAccnt from './AppHeaderDropdownAccnt'
 import { logo } from '@/assets/brand/logo'
+import service from '@/service/controller'
 export default {
   name: 'AppHeader',
   components: {
     AppBreadcrumb,
     AppHeaderDropdownAccnt,
+    CNavItem
+},
+  data() {
+    
+    return {
+          userProfile: {
+          },
+    }
   },
+  methods: {
+    async getProfile(){
+      const response = await service.getUserProfile();
+      console.log(response)
+      try{
+        this.userProfile = {   
+            id: response.id,
+            nomeUsuario: response.nomeUsuario,
+            saldo: response.saldo,
+            email: response.email
+        }
+        console.log(this.userProfile)
+      } catch(error){
+        console.log(error)
+      }
+      
+  }
+  },
+
   setup() {
     return {
       logo,
     }
   },
+  mounted(){
+    this.getProfile();
+  }
 }
 </script>

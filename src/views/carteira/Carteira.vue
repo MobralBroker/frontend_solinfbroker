@@ -1,34 +1,32 @@
 <template>
   <div>
+  <div>
     <CNav variant="tabs">
-  <CNavItem>
-    <CNavLink href="#" active>
-      Active
-    </CNavLink>
-  </CNavItem>
-  <CNavItem>
-    <CNavLink href="#">Link</CNavLink>
-  </CNavItem>
-  <CNavItem>
-    <CNavLink href="#">Link</CNavLink>
-  </CNavItem>
-  <CNavItem>
-    <CNavLink href="#" disabled>
-      Disabled
-    </CNavLink>
-  </CNavItem>
-</CNav>
+      <CNavItem>
+        <CNavLink @click="changeTab(0)" :active="activeTab === 0" style="cursor: pointer;">
+          Minha Carteira
+        </CNavLink>
+      </CNavItem>
+      <CNavItem>
+        <CNavLink @click="changeTab(1)" :active="activeTab === 1" style="cursor: pointer;">
+          Minhas Ordens
+        </CNavLink>
+      </CNavItem>
+      <CNavItem>
+        <CNavLink @click="changeTab(2)" :active="activeTab === 2" style="cursor: pointer;">
+          Minhas Ações
+        </CNavLink>
+      </CNavItem>
+    </CNav>
+  </div>
 
     <CRow>
       <CCol :md="12">
         <CCard class="mb-4">
-
-
-          <CCardHeader color="danger">Carteira</CCardHeader>
           <CCol :xs="12" class="mb-4" style="padding: 10px;">
             <CCard>
               <CCardBody style="padding: 30px;">
-                <CRow class="mb-3">
+                <CRow class="mb-3" v-if="activeTab === 0">
                   <CCard>
                     <CCardBody>
                       <h4>
@@ -40,7 +38,7 @@
                     </CCardBody>
                   </CCard>
                 </CRow>
-                <CRow class="mb-3">
+                <CRow class="mb-3" v-if="activeTab === 0">
                   <CCard>
                     <CCardBody>
                       <h4>
@@ -88,8 +86,11 @@
                     </CCardBody>
                   </CCard>
                 </CRow>
-                <CRow>
+                <CRow v-if="activeTab === 1">
                   <component :is="Ordens"/>
+                </CRow>
+                <CRow v-if="activeTab === 2">
+                  <component :is="Acoes"/>
                 </CRow>
 
               </CCardBody>
@@ -103,6 +104,15 @@
 </template>
 <script setup>
 import Ordens from '../ordens/Ordens.vue'
+import Acoes from './AcoesCliente.vue'
+
+import { ref } from 'vue';
+
+const activeTab = ref(0);
+
+const changeTab = (index) => {
+  activeTab.value = index;
+};
 </script>
 
 <script>
@@ -144,6 +154,7 @@ export default {
       }).format(this.valorDepositoValue / 100);
     },
     updateValueSaque(event) {
+      console.log(event)
       // Remover caracteres não numéricos
       const numericValue = parseFloat(event.target.value.replace(/[^\d]/g, ""));
 
@@ -199,8 +210,6 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(response.saldo);
-        console.log("response.saldo",response.saldo)
-        console.log("this.userProfile.saldo",this.userProfile.saldo)
 
         // this.userProfile.saldo = response.saldo;
         this.updateValueDeposito({ target: { value: this.valorDeposito } });
@@ -234,6 +243,8 @@ export default {
 
     check_possibleSaque() {
       var saque_format = this.valorSaque
+      var saque_formatCliente = this.userProfile.saldo
+
       saque_format = saque_format.replace("R", "");
       saque_format = saque_format.replace("$", "");
       saque_format = saque_format.replace(" ", "");
@@ -243,9 +254,22 @@ export default {
       } while (saque_format.includes("."));
 
       saque_format = saque_format.replace(",", ".");
+
+      saque_formatCliente = saque_formatCliente.replace("R", "");
+      saque_formatCliente = saque_formatCliente.replace("$", "");
+      saque_formatCliente = saque_formatCliente.replace(" ", "");
+      saque_formatCliente = saque_formatCliente.trim();
+      do {
+        saque_formatCliente = saque_formatCliente.replace(".", "");
+      } while (saque_formatCliente.includes("."));
+
+      saque_formatCliente = saque_formatCliente.replace(",", ".");
+
       console.log(saque_format)
-      if (saque_format > this.userProfile.saldo) {
-        swal('Aviso', 'O valor do saque pedido excede o total da conta.', 'warning');
+      console.log(saque_formatCliente)
+
+      if (saque_format > saque_formatCliente) {
+        swal('Aviso', 'O valor do saque solicitado excede o total da conta.', 'warning');
         return 'Tudo certo, valor não excede o saldo disponível'
       }else{
         this.saque(saque_format)

@@ -149,6 +149,22 @@ export default{
         
         return listOderns.data;
     },
+    async getAcoesClient(){
+        const idClient = localStorage.getItem('idCliente')
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
+
+        const listOderns = await crudApi.get(`/carteira/cliente/${idClient}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return listOderns.data;
+    },
 
     async deleteOrdemClient(idOrdem, ordem){
         
