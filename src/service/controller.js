@@ -9,20 +9,25 @@ export default{
     },
 
     async login(user){
-            
+        
         const response = await authenticationApi.post('auth/login',user)
         return  response.data
           
     },
     
-    async getUserProfile(email){
+    async getUserProfile(){
         
         const token = localStorage.getItem('token');        
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-        const response = await authenticationApi.get('/auth/usuario/' + email)
+        const idCliente = localStorage.getItem('id');    
+        const response = await crudApi.get('/cliente/' + idCliente,{
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
         return response.data;
     },
 
@@ -128,15 +133,15 @@ export default{
         }
     },
 
-    async getOrdensClient(idCliente){
-        
+    async getOrdensClient(){
+        const idClient = localStorage.getItem('idCliente')
         const token = localStorage.getItem('token');        
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
 
-        const listOderns = await crudApi.get(`/ordem/cliente/${idCliente}`, {
+        const listOderns = await crudApi.get(`/ordem/cliente/${idClient}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },

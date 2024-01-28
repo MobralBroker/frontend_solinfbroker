@@ -1,12 +1,9 @@
 <template>
   <div>
-    
-  
-      
       <CCol :md="12">
         
         <CCard class="mb-4">
-          <CCardHeader>Ordens</CCardHeader>
+          <CCardHeader>Minhas Ordens</CCardHeader>
 
             <CTable align="middle" class="mb-0 border" hover responsive>
               <CTableHead class="text-nowrap">
@@ -27,18 +24,12 @@
                 <CTableDataCell class="text-center"> <div> {{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByType(item.tipoOrdem)"> {{ getTypeByType(item.tipoOrdem) }} </CBadge> </div> </CTableDataCell>
-                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">R$ {{ item.valorOrdem }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ formatarValores(item.valorOrdem) }} </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByStatus(item.statusOrdem)"> {{ item.statusOrdem }} </CBadge> </div> </CTableDataCell>                
                 <CTableDataCell> <CButton color="danger" shape="rounded-pill" class="px-12" @click="deteleOrder(item.id)" style="color: white;"> Cancelar ordem</CButton> </CTableDataCell>
 
               </CTableRow>
               </CTableBody>
-              
-              <br>
-              <div class="text-center">              
-                <CButton color="success"  class="px-8 text-center" @click="listarOrdens()" style="color: white;">Atualizar</CButton>
-              </div>
-              <br>
             </CTable>
         </CCard>
       </CCol>
@@ -51,7 +42,7 @@ import service from '../../service/controller';
 import swal from 'sweetalert';
 
 export default {
-  name: 'Dashboard',
+  name: 'Ordens',
   components: {
     
   },
@@ -84,20 +75,20 @@ export default {
     getColorByStatus(status) {
       switch (status) {
         case 'CANCELADA':
-          return 'warning'; // substitua 'status1' pela condição real
+          return 'secondary'; // substitua 'status1' pela condição real
         case 'ABERTA':
-          return 'success'; // substitua 'status2' pela condição real
+          return 'warning'; // substitua 'status2' pela condição real
         default:
-          return 'secondary'; // cor padrão para outros casos
+          return 'success'; // cor padrão para outros casos
       }
     },
 
     getTypeByType(tipoOrdem) {
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
-          return 'Compra'; // substitua 'status1' pela condição real
+          return 'Venda'; // substitua 'status1' pela condição real
         case 'ORDEM_COMPRA':
-          return 'Venda'; // substitua 'status2' pela condição real
+          return 'Compra'; // substitua 'status2' pela condição real
         default:
           return 'null'; // cor padrão para outros casos
       }
@@ -105,17 +96,17 @@ export default {
     getColorByType(tipoOrdem) {
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
-          return 'info'; // substitua 'status1' pela condição real
+          return 'dark'; // substitua 'status1' pela condição real
         case 'ORDEM_COMPRA':
-          return 'success'; // substitua 'status2' pela condição real
+          return 'info'; // substitua 'status2' pela condição real
         default:
           return 'null'; // cor padrão para outros casos
       }
     },
    
-    async listarOrdens(id){
+    async listarOrdens(){
       try{
-            const listOderns = await service.getOrdensClient(id)
+            const listOderns = await service.getOrdensClient()
             console.log(listOderns)
             if (Array.isArray(listOderns)) {
 
@@ -140,7 +131,7 @@ export default {
 
     async getProfile(){
       const email = localStorage.getItem('userMail')
-      const response = await service.getUserProfile(email);
+      const response = await service.getUserProfile();
       console.log(response)
       try{
         this.userProfile = {   
@@ -171,15 +162,24 @@ export default {
             text: 'Ordem deletada!',
             icon: 'success',
           }).then(()=>{
-              const idClient = localStorage.getItem('idCliente')
-              this.listarOrdens(idClient);
+              
+              this.listarOrdens();
           });
       } catch(error){
         swal('Erro', 'Ocorreu um erro ao deletar a ordem T.T', 'error');
         console.log(error)
       }
   },
+  formatarValores(item) {
 
+      // Formatando o valor como moeda brasileira
+      return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(item );
+    },
   },
 
   /*  FINISH FUNC'S    */
@@ -189,10 +189,8 @@ export default {
 
 
   mounted() {
-    const idClient = localStorage.getItem('idCliente')
-
     this.getProfile();
-    this.listarOrdens(idClient);
+    this.listarOrdens();
 
   },
   
