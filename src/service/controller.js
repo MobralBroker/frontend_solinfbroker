@@ -66,7 +66,6 @@ export default{
         return response.data;
     },
     async buscarHistorico(id, escala, periodo){
-        console.log("id",id)
         const token = localStorage.getItem('token');        
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');

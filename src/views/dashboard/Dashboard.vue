@@ -2,6 +2,30 @@
 
   <div>
     <CRow class="mb-2" style="  display: flex;"> <!-- flex-direction: column; height: 400px; overflow: hidden;">-->
+      <CCol :md="12">
+        <CCard :mb="12" >
+          <CCardHeader>Cliente</CCardHeader>
+            <CCol :xs="12" class="mb-4" style="padding: 10px;">
+              <CCard> 
+                <CCardBody style="padding: 10px;">
+                  <CRow >
+                    <CCol :xs="12">
+                  
+                      <div style="  display: flex; align-items: center;">
+                        <H5> Bem-Vindo, {{ userProfile.nomeUsuario }} !</H5>
+                      </div>
+                      <br>
+                    </CCol>
+                  </CRow>
+                </CCardBody>
+              </CCard>
+             </CCol>
+        </CCard>
+      </CCol>
+    </CRow>
+
+
+    <CRow class="mb-2" style="  display: flex;"> <!-- flex-direction: column; height: 400px; overflow: hidden;">-->
       <CCol :md="4">
       <CCard :mb="4" >
           <CCardHeader>Compra & Venda de Ativos</CCardHeader>
@@ -51,30 +75,13 @@
                             @change="handleRadioChange(false)"
                           />
                         </CButtonGroup>
-                        <p>A opção selecionada é: {{ this.selectedOption}}</p>
-
                         <br>
                       </CListGroup>
 
                       <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white; width: 100%;">Enviar Ordem</CButton>
 
-
                     </CCol>
 
-
-                    <!-- <CCol :xs="6">
-                      <CCol :xs="10">
-                        <CWidgetStatsF color="info" :padding="false" :title="userProfile.email" :value="userProfile.nomeUsuario" >
-                          <template #icon><CIcon icon="cil-people" size="xl"/> </template>
-                        </CWidgetStatsF>
-
-                      </CCol>
-                      <br>
-                      <CCol :xs="10">
-                            <template #icon><CIcon icon="cil-dollar" size="xl"/> </template>
-                        </CWidgetStatsF>
-                      </CCol>
-                    </CCol> -->
                   </CRow>
                 </CCardBody>
             </CCard>
@@ -84,7 +91,7 @@
       
       <CCol :md="8">
         <CCard :mb="4">
-          <CCardHeader>Chart</CCardHeader>
+          <CCardHeader> Ativo: {{selectedAtivo.sigla}}</CCardHeader>
           <CCardBody style="padding: 10px;">
           <CCard> 
           <CCardBody style="padding: 10px;">
@@ -484,7 +491,7 @@ export default {
       this.selectedAtivo.quantidadesPapeis = item.quantidadesPapeis
       this.selectedAtivo.valorMax = item.valorMax
       this.selectedAtivo.valorMin = item.valorMin
-      // this.selectedAtivo.valor = item.valor
+      this.selectedAtivo.valor = item.valor
 
 
         // Formatando o valor como moeda brasileira
@@ -494,20 +501,36 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(item.valor);
-      this.idAtivo = item.id;
-      this.atualizarGrafico();
-    },
-    async atualizarGrafico(){
-      const res = await service.buscarHistorico(this.idAtivo, this.escala,this.periodo );
-      this.series = [{
-        data: res.data.map(item => ({
-          x: new Date(item.x),
-          y: [item.y[0], item.y[1], item.y[2], item.y[3]]  // Certifique-se de adaptar os nomes corretos
-        }))
-      }];
+
+
+      // console.log("escala",this.escala)
+      // console.log("periodo",this.periodo)
+
+      const responseData = await service.buscarHistorico(item.id, this.escala,this.periodo);      
+      if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
+          this.series = [{
+            data: responseData.data.map(item => ({
+              x: new Date(item.x),
+              y: [item.y[0], item.y[1], item.y[2], item.y[3]] // open,high,low,close
+            }))
+          }];
+
+      }else{
+        console.log(this.selectedAtivo.valor, this.selectedAtivo.valorMax, this.selectedAtivo.valorMin, this.selectedAtivo.valor);
+        this.series = [{
+            data: 
+            [
+              {
+                x: new Date(1538778600000),
+                y: [this.selectedAtivo.valor, this.selectedAtivo.valorMax, this.selectedAtivo.valorMin, this.selectedAtivo.valor]
+              }
+            ]
+          }];
+      }
+
     },
     async Order(value){
-      
+
                   if(this.selectedOption == false){
                     this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
                   }else{
@@ -631,6 +654,7 @@ export default {
   sendMessage(message) {
     console.log(this.connection);
     this.connection.send(message);
+
   },
   async wsSocket(){
     const token = localStorage.getItem('token')
@@ -643,6 +667,7 @@ export default {
       }
 
       this.connection.onmessage = (event) => {
+
         var jsonObj = JSON.parse(event.data); 
 
 
@@ -651,10 +676,12 @@ export default {
         console.log(jsonObj)
         console.log("vetorAtivos")
         console.log(this.vetorAtivos)
+
           const index = this.vetorAtivos.findIndex(ativo => ativo.id === jsonObj.dados.id);
           console.log(index)
           if (index != -1) {
             console.log("entrou")
+
 
             const data = new Date(timestamp);
             const ano = data.getFullYear();
@@ -674,6 +701,7 @@ export default {
             valorMax: this.vetorAtivos[index].valorMax,
             valorMin: this.vetorAtivos[index].valorMin
           };
+
         this.vetorAtivos.splice(index,1)
         this.vetorAtivos.unshift(updateAtivo)
         // this.vetorAtivos[index] = updateAtivo
@@ -685,6 +713,7 @@ export default {
     console.error("Erro no WebSocket:", event);
   };
   
+
 // Evento disparado quando a conexão é fechada
 this.connection.onclose = (event) =>  {
     console.log("Conexão WS fechada:", event);
