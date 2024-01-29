@@ -15,24 +15,45 @@
                       <CListGroup>
                         <CListGroupItem active class="mb-2">Ordem</CListGroupItem>
                         <!--<CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla"> </CFormInput>-->
-                        <input placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla" class="mb-2" disabled>
+                        <CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla" class="mb-2" disabled/>
                         <!--<CFormInput placeholder="Valor" autocomplete="Valor" v-model="selectedAtivo.valor"/>-->
-                        <input 
+                        <CFormInput
                                   id="currencyInput"
                                   v-model="valorAtivo"
                                   @input="updateValueSaque"
                                   placeholder="Valor"
                                   class="mb-2" 
-                                    >
+                                    />
                         <!-- <input class="mb-2" placeholder = "Valor" type="text" id="text" v-model="selectedAtivo.valor" v-maska:[maska_options] data-maska="0.99" data-maska-tokens="0:\d:multiple|9:\d:optional"> -->
                         <!--<CFormInput placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />-->
-                        <input class="mb-2" placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem">
+                        <CFormInput class="mb-2" placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />
                         <!-- <CFormSwitch v-model="switchValue" :switch="{ color: 'success' }" size="xl" label="Vender" id="formSwitchCheckDefaultXL"/> -->
 
-                        <CButtonGroup class="mb-2" v-model="selectedOption" role="group" >
-                          <CFormCheck type="radio" :button="{color: 'primary', variant: 'outline'}" name="btnradio" id="btnradio1" autocomplete="off" label="COMPRA" checked/>
-                          <CFormCheck type="radio" :button="{color: 'danger', variant: 'outline'}" name="btnradio" id="btnradio2" autocomplete="off" label="VENDA"/>
+                        <CButtonGroup class="mb-2" role="group">
+                          <CFormCheck
+                            type="radio"
+                            :button="{ color: 'info', variant: 'outline' }"
+                            name="btnradio1"
+                            id="btnradio1"
+                            autocomplete="false"
+                            label="COMPRA"
+                            :checked="selectedOption === true"
+                            @change="handleRadioChange(true)"
+                          />
+                          <CFormCheck
+                            type="radio"
+                            :button="{ color: 'danger', variant: 'outline' }"
+                            name="btnradio2"
+                            id="btnradio2"
+                            autocomplete="false"
+                            label="VENDA"
+                            :checked="selectedOption === false"
+                            @change="handleRadioChange(false)"
+                          />
                         </CButtonGroup>
+                        <p>A opção selecionada é: {{ this.selectedOption}}</p>
+
+                        <br>
                       </CListGroup>
 
                       <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white; width: 100%;">Enviar Ordem</CButton>
@@ -69,7 +90,7 @@
           <CCardBody style="padding: 10px;">
             <CRow>
               <CCol :md="6">
-            <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example">
+            <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
               <option value="7" active>Últimos 7 dias</option>
               <option value="30">Últimos 30 dias</option>
               <option value="90">Últimos 90 dias</option>
@@ -77,7 +98,7 @@
             </CFormSelect>
               </CCol>
               <CCol :md="6">
-            <CFormSelect v-model="escala" size="sm" class="mb-3" aria-label="Small select example">
+            <CFormSelect v-model="escala" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
               <option value="minute">Minuto</option>
               <option value="hour">Hora</option>
               <option value="day">Dia</option>
@@ -132,8 +153,6 @@
   
   </div>
 </template>
-<script setup> import { vMaska } from "maska";</script>
-
 
 <script>
 import service from '../../service/controller';
@@ -153,8 +172,6 @@ export default {
   data() {
     
     return {
-
-
       series: [{
             data: [{
                 x: new Date(1538778600000),
@@ -441,16 +458,23 @@ export default {
           
           userProfile: {
           },
-          // switchValue: false,
-          selectedOption:"COMPRA",
+          selectedOption: true,
           valorAtivo:"R$ 0,00",
           valorAtivoValue: 0,
           escala:"day",
           periodo:"7",
+          idAtivo:0,
     }
   },
   methods:{
   
+    handleRadioChange(isCompra) {
+      if (isCompra) {
+        this.selectedOption = true;
+      } else {
+        this.selectedOption = false;
+      }
+    },
 
     async handleItemAtivo(item){
       this.selectedAtivo.id = item.id
@@ -463,40 +487,32 @@ export default {
       // this.selectedAtivo.valor = item.valor
 
 
-      // Formatando o valor como moeda brasileira
+        // Formatando o valor como moeda brasileira
         this.valorAtivo= new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(item.valor);
-
-      console.log("escala",this.escala)
-      console.log("periodo",this.periodo)
-
-      const res = await service.buscarHistorico(item.id, this.escala,this.periodo );
-      
-
+      this.idAtivo = item.id;
+      this.atualizarGrafico();
+    },
+    async atualizarGrafico(){
+      const res = await service.buscarHistorico(this.idAtivo, this.escala,this.periodo );
       this.series = [{
         data: res.data.map(item => ({
           x: new Date(item.x),
           y: [item.y[0], item.y[1], item.y[2], item.y[3]]  // Certifique-se de adaptar os nomes corretos
         }))
       }];
-
-      console.log("series21",this.series)
     },
-
     async Order(value){
-                  // console.log(this.switchValue)
-                  console.log(this.selectedOption)
-                  // if(this.switchValue == true){
-                    // this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
-                  // }else{
-                    // this.orderSellandBuy.tipoOrdem = "ORDEM_COMPRA"
-                  // }
-                  this.orderSellandBuy.tipoOrdem = this.selectedOption
-                  
+      
+                  if(this.selectedOption == false){
+                    this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
+                  }else{
+                    this.orderSellandBuy.tipoOrdem = "ORDEM_COMPRA"
+                  }                  
                    this.orderSellandBuy.quantidadeOrdem = parseInt( this.orderSellandBuy.quantidadeOrdem , 10)
                    this.orderSellandBuy.idCliente = this.userProfile.id
                    this.orderSellandBuy.idAtivo = this.selectedAtivo.id
@@ -553,6 +569,7 @@ export default {
     },
 
     check_possibleBuy(){
+      console.log("selectedOption ::: ", this.selectedOption)
 
       var valorOrdemFormat = this.valorAtivo
 
@@ -565,13 +582,11 @@ export default {
       } while (valorOrdemFormat.includes("."));
 
       valorOrdemFormat = valorOrdemFormat.replace(",", ".");
-
-      console.log("this.valorAtivo novo")
       console.log(this.valorAtivoValue)
-      if(this.switchValue == "VENDA"){
+      if(this.selectedOption === false ){
         this.Order(valorOrdemFormat)
         return 'Ordem de venda, ignorar'
-      }else if(this.switchValue == "COMPRA"){
+      }else if(this.selectedOption == true){
         if(valorOrdemFormat > this.userProfile.saldo){
           swal('Aviso', 'A compra que você está tentando fazer excede o seu saldo.', 'warning')
           return 'Saldo baixo, impossível fazer compra'
@@ -616,40 +631,88 @@ export default {
   sendMessage(message) {
     console.log(this.connection);
     this.connection.send(message);
-  }
-
   },
-
-  
-  /*  FINISH FUNC'S    */
-
-  created: function () {
+  async wsSocket(){
     const token = localStorage.getItem('token')
       document.cookie = 'X-Authorization=' + token + '; path=/';
         this.connection = new WebSocket("ws://localhost:8086/dash")
     
-      this.connection.onopen = function (event){
+      this.connection.onopen = (event) => {
         console.log(event)
         console.log("WS conectado")
       }
 
-      this.connection.onmessage = function(event){
-        console.log(event.data)
+      this.connection.onmessage = (event) => {
+        var jsonObj = JSON.parse(event.data); 
+
+
+        if(jsonObj.tipo == "ativo"){
+          console.log("jsonObj")
+        console.log(jsonObj)
+        console.log("vetorAtivos")
+        console.log(this.vetorAtivos)
+          const index = this.vetorAtivos.findIndex(ativo => ativo.id === jsonObj.dados.id);
+          console.log(index)
+          if (index != -1) {
+            console.log("entrou")
+
+            const data = new Date(timestamp);
+            const ano = data.getFullYear();
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const dia = String(data.getDate()).padStart(2, '0');
+            const dataLancamento = `${dia}/${mes}/${ano}`;
+
+
+          const updateAtivo = {
+            id: jsonObj.dados.id,
+            id_empresa: this.vetorAtivos[index].id_empresa,
+            atualizacao: dataLancamento,
+            sigla: this.vetorAtivos[index].sigla,
+            valor: jsonObj.dados.valor,
+            nome: this.vetorAtivos[index].nome,
+            quantidadesPapeis: this.vetorAtivos[index].quantidadesPapeis,
+            valorMax: this.vetorAtivos[index].valorMax,
+            valorMin: this.vetorAtivos[index].valorMin
+          };
+        this.vetorAtivos.splice(index,1)
+        this.vetorAtivos.unshift(updateAtivo)
+        // this.vetorAtivos[index] = updateAtivo
+        }
       }
-      this.connection.onerror = function(event) {
+
+      }
+      this.connection.onerror = (event) =>  {
     console.error("Erro no WebSocket:", event);
   };
   
 // Evento disparado quando a conexão é fechada
-this.connection.onclose = function(event) {
+this.connection.onclose = (event) =>  {
     console.log("Conexão WS fechada:", event);
 };
 
   },
+  getDateTime(timestamp){
 
+const currentDate = new Date();
+const data = new Date(timestamp);
+
+const ano = data.getFullYear();
+const mes = String(data.getMonth() + 1).padStart(2, '0');
+const dia = String(data.getDate()).padStart(2, '0');
+const hora = String(data.getHours()).padStart(2, '0');
+const minuto = String(data.getMinutes()).padStart(2, '0');
+const segundo = String(data.getSeconds()).padStart(2, '0');
+const milissegundo = String(data.getMilliseconds()).padStart(3, '0');
+const dataLancamento = `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}.${milissegundo}`;
+
+return dataLancamento
+}
+
+  },
   mounted() {
     this.Ativos();
     this.getProfile();
+    this.wsSocket();
   },
 }
 </script>

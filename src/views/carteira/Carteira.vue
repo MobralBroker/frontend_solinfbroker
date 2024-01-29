@@ -48,13 +48,13 @@
                           <CWidgetStatsF color="success" :padding="false" 
                             :value="'R$ ' + this.userProfile.saldo">
                             <template #icon >
-                                  <input 
+                                  <CFormInput 
                                   id="currencyInput"
                                   v-model="valorDeposito"
                                   @input="updateValueDeposito"
                                   placeholder="R$ 0,00"
                                   style="width: 120px;"
-                                    >
+                                    />
                             </template>
                             <template #value>
                               <div class="text-center d-flex align-items-center">
@@ -67,13 +67,13 @@
                       <CCol :xs="12" :sm="6" :md="4" class="mb-3">
                           <CWidgetStatsF color="danger" :padding="false" >
                             <template #icon>
-                                  <input 
+                                  <CFormInput 
                                   id="currencyInput"
                                   v-model="valorSaque"
                                   @input="updateValueSaque"
                                   placeholder="R$ 0,00"
                                   style="width: 120px;"
-                                    >
+                                    />
                             </template>
                             <template #value>
                               <div class="text-center d-flex align-items-center">
