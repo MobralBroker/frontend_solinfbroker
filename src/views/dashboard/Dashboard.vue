@@ -655,10 +655,18 @@ export default {
           console.log(index)
           if (index != -1) {
             console.log("entrou")
+
+            const data = new Date(timestamp);
+            const ano = data.getFullYear();
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const dia = String(data.getDate()).padStart(2, '0');
+            const dataLancamento = `${dia}/${mes}/${ano}`;
+
+
           const updateAtivo = {
             id: jsonObj.dados.id,
             id_empresa: this.vetorAtivos[index].id_empresa,
-            atualizacao: new Date(jsonObj.dados.atualizacao),
+            atualizacao: dataLancamento,
             sigla: this.vetorAtivos[index].sigla,
             valor: jsonObj.dados.valor,
             nome: this.vetorAtivos[index].nome,
@@ -682,7 +690,23 @@ this.connection.onclose = (event) =>  {
     console.log("Conexão WS fechada:", event);
 };
 
-  }
+  },
+  getDateTime(timestamp){
+
+const currentDate = new Date();
+const data = new Date(timestamp);
+
+const ano = data.getFullYear();
+const mes = String(data.getMonth() + 1).padStart(2, '0');
+const dia = String(data.getDate()).padStart(2, '0');
+const hora = String(data.getHours()).padStart(2, '0');
+const minuto = String(data.getMinutes()).padStart(2, '0');
+const segundo = String(data.getSeconds()).padStart(2, '0');
+const milissegundo = String(data.getMilliseconds()).padStart(3, '0');
+const dataLancamento = `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}.${milissegundo}`;
+
+return dataLancamento
+}
 
   },
   mounted() {
