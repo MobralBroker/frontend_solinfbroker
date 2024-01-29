@@ -9,9 +9,7 @@
       </CHeaderBrand>
       <CHeaderNav class="d-none d-md-flex me-auto">
         <CNavItem>
-          <div style="  display: flex; align-items: center;">
-            <H5> {{ userProfile.nomeUsuario }}</H5>
-          </div>
+
         </CNavItem>
       </CHeaderNav>
       <CHeaderNav>

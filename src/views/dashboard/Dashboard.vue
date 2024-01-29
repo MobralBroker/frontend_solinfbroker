@@ -2,6 +2,30 @@
 
   <div>
     <CRow class="mb-2" style="  display: flex;"> <!-- flex-direction: column; height: 400px; overflow: hidden;">-->
+      <CCol :md="12">
+        <CCard :mb="12" >
+          <CCardHeader>Cliente</CCardHeader>
+            <CCol :xs="12" class="mb-4" style="padding: 10px;">
+              <CCard> 
+                <CCardBody style="padding: 10px;">
+                  <CRow >
+                    <CCol :xs="12">
+                  
+                      <div style="  display: flex; align-items: center;">
+                        <H5> Bem-Vindo, {{ userProfile.nomeUsuario }} !</H5>
+                      </div>
+                      <br>
+                    </CCol>
+                  </CRow>
+                </CCardBody>
+              </CCard>
+             </CCol>
+        </CCard>
+      </CCol>
+    </CRow>
+
+
+    <CRow class="mb-2" style="  display: flex;"> <!-- flex-direction: column; height: 400px; overflow: hidden;">-->
       <CCol :md="4">
       <CCard :mb="4" >
           <CCardHeader>Compra & Venda de Ativos</CCardHeader>
@@ -655,40 +679,68 @@ export default {
     };
   }
 
-
-
   },
 
   
   /*  FINISH FUNC'S    */
-
-  created: function () {
+    async wsSocket(){
     const token = localStorage.getItem('token')
       document.cookie = 'X-Authorization=' + token + '; path=/';
         this.connection = new WebSocket("ws://localhost:8086/dash")
     
-      this.connection.onopen = function (event){
+      this.connection.onopen = (event) => {
         console.log(event)
         console.log("WS conectado")
       }
 
-      this.connection.onmessage = function(event){
-        console.log(event.data)
+      this.connection.onmessage = (event) => {
+        
+        var jsonObj = JSON.parse(event.data); 
+
+        if(jsonObj.tipo == "ativo"){
+          console.log("jsonObj")
+          console.log(jsonObj)
+          console.log("vetorAtivos")
+          console.log(this.vetorAtivos)
+          const index = this.vetorAtivos.findIndex(ativo => ativo.id === jsonObj.dados.id);
+          console.log(index)
+          if (index != -1) {
+            console.log("entrou")
+         
+            const updateAtivo = {
+            id: jsonObj.dados.id,
+            id_empresa: this.vetorAtivos[index].id_empresa,
+            atualizacao: dataLancamento,
+            sigla: this.vetorAtivos[index].sigla,
+            valor: jsonObj.dados.valor,
+            nome: this.vetorAtivos[index].nome,
+            quantidadesPapeis: this.vetorAtivos[index].quantidadesPapeis,
+            valorMax: this.vetorAtivos[index].valorMax,
+            valorMin: this.vetorAtivos[index].valorMin
+          };
+          
+        this.vetorAtivos.splice(index,1)
+        this.vetorAtivos.unshift(updateAtivo)
+        // this.vetorAtivos[index] = updateAtivo
+        }
       }
-      this.connection.onerror = function(event) {
+
+      }
+      this.connection.onerror = (event) =>  {
     console.error("Erro no WebSocket:", event);
   };
   
-// Evento disparado quando a conexão é fechada
-this.connection.onclose = function(event) {
-    console.log("Conexão WS fechada:", event);
-};
+  // Evento disparado quando a conexão é fechada
+  this.connection.onclose = function(event) {
+      console.log("Conexão WS fechada:", event);
+  };
 
   },
 
   mounted() {
     this.Ativos();
     this.getProfile();
+    this.wsSocket();
   },
 }
 </script>
