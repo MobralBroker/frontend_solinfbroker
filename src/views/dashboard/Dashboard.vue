@@ -15,24 +15,45 @@
                       <CListGroup>
                         <CListGroupItem active class="mb-2">Ordem</CListGroupItem>
                         <!--<CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla"> </CFormInput>-->
-                        <input placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla" class="mb-2" disabled>
+                        <CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla" class="mb-2" disabled/>
                         <!--<CFormInput placeholder="Valor" autocomplete="Valor" v-model="selectedAtivo.valor"/>-->
-                        <input 
+                        <CFormInput
                                   id="currencyInput"
                                   v-model="valorAtivo"
                                   @input="updateValueSaque"
                                   placeholder="Valor"
                                   class="mb-2" 
-                                    >
+                                    />
                         <!-- <input class="mb-2" placeholder = "Valor" type="text" id="text" v-model="selectedAtivo.valor" v-maska:[maska_options] data-maska="0.99" data-maska-tokens="0:\d:multiple|9:\d:optional"> -->
                         <!--<CFormInput placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />-->
-                        <input class="mb-2" placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem">
+                        <CFormInput class="mb-2" placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />
                         <!-- <CFormSwitch v-model="switchValue" :switch="{ color: 'success' }" size="xl" label="Vender" id="formSwitchCheckDefaultXL"/> -->
 
-                        <CButtonGroup class="mb-2" v-model="selectedOption" role="group" >
-                          <CFormCheck type="radio" :button="{color: 'primary', variant: 'outline'}" name="btnradio" id="btnradio1" autocomplete="off" label="COMPRA" checked/>
-                          <CFormCheck type="radio" :button="{color: 'danger', variant: 'outline'}" name="btnradio" id="btnradio2" autocomplete="off" label="VENDA"/>
+                        <CButtonGroup class="mb-2" role="group">
+                          <CFormCheck
+                            type="radio"
+                            :button="{ color: 'info', variant: 'outline' }"
+                            name="btnradio1"
+                            id="btnradio1"
+                            autocomplete="false"
+                            label="COMPRA"
+                            :checked="selectedOption === true"
+                            @change="handleRadioChange(true)"
+                          />
+                          <CFormCheck
+                            type="radio"
+                            :button="{ color: 'danger', variant: 'outline' }"
+                            name="btnradio2"
+                            id="btnradio2"
+                            autocomplete="false"
+                            label="VENDA"
+                            :checked="selectedOption === false"
+                            @change="handleRadioChange(false)"
+                          />
                         </CButtonGroup>
+                        <p>A opção selecionada é: {{ this.selectedOption}}</p>
+
+                        <br>
                       </CListGroup>
 
                       <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white; width: 100%;">Enviar Ordem</CButton>
@@ -132,8 +153,6 @@
   
   </div>
 </template>
-<script setup> import { vMaska } from "maska";</script>
-
 
 <script>
 import service from '../../service/controller';
@@ -153,8 +172,6 @@ export default {
   data() {
     
     return {
-
-
       series: [{
             data: [{
                 x: new Date(1538778600000),
@@ -441,8 +458,7 @@ export default {
           
           userProfile: {
           },
-          // switchValue: false,
-          selectedOption:"COMPRA",
+          selectedOption: true,
           valorAtivo:"R$ 0,00",
           valorAtivoValue: 0,
           escala:"day",
@@ -451,6 +467,13 @@ export default {
   },
   methods:{
   
+    handleRadioChange(isCompra) {
+      if (isCompra) {
+        this.selectedOption = true;
+      } else {
+        this.selectedOption = false;
+      }
+    },
 
     async handleItemAtivo(item){
       this.selectedAtivo.id = item.id
@@ -463,7 +486,7 @@ export default {
       // this.selectedAtivo.valor = item.valor
 
 
-      // Formatando o valor como moeda brasileira
+        // Formatando o valor como moeda brasileira
         this.valorAtivo= new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",
@@ -488,15 +511,12 @@ export default {
     },
 
     async Order(value){
-                  // console.log(this.switchValue)
-                  console.log(this.selectedOption)
-                  // if(this.switchValue == true){
-                    // this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
-                  // }else{
-                    // this.orderSellandBuy.tipoOrdem = "ORDEM_COMPRA"
-                  // }
-                  this.orderSellandBuy.tipoOrdem = this.selectedOption
-                  
+      
+                  if(this.selectedOption == false){
+                    this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
+                  }else{
+                    this.orderSellandBuy.tipoOrdem = "ORDEM_COMPRA"
+                  }                  
                    this.orderSellandBuy.quantidadeOrdem = parseInt( this.orderSellandBuy.quantidadeOrdem , 10)
                    this.orderSellandBuy.idCliente = this.userProfile.id
                    this.orderSellandBuy.idAtivo = this.selectedAtivo.id
@@ -553,6 +573,7 @@ export default {
     },
 
     check_possibleBuy(){
+      console.log("selectedOption ::: ", this.selectedOption)
 
       var valorOrdemFormat = this.valorAtivo
 
@@ -565,13 +586,11 @@ export default {
       } while (valorOrdemFormat.includes("."));
 
       valorOrdemFormat = valorOrdemFormat.replace(",", ".");
-
-      console.log("this.valorAtivo novo")
       console.log(this.valorAtivoValue)
-      if(this.switchValue == "VENDA"){
+      if(this.selectedOption === false ){
         this.Order(valorOrdemFormat)
         return 'Ordem de venda, ignorar'
-      }else if(this.switchValue == "COMPRA"){
+      }else if(this.selectedOption == true){
         if(valorOrdemFormat > this.userProfile.saldo){
           swal('Aviso', 'A compra que você está tentando fazer excede o seu saldo.', 'warning')
           return 'Saldo baixo, impossível fazer compra'
