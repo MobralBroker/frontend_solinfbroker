@@ -3,7 +3,7 @@
       <CCol :md="12">
         
         <CCard class="mb-4">
-          <CCardHeader>Minhas Açoes</CCardHeader>
+          <CCardHeader>Minhas Ações</CCardHeader>
 
             <CTable align="middle" class="mb-0 border" hover responsive>
               <CTableHead class="text-nowrap">
@@ -83,7 +83,8 @@ export default {
         console.log(error)
       }
       
-  }
+  },
+
 },
 
   /*  FINISH FUNC'S    */

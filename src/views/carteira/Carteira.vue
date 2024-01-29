@@ -59,7 +59,7 @@
                             <template #value>
                               <div class="text-center d-flex align-items-center">
                                 <CButton color="success" shape="rounded-pill" class="custom-btn" @click="check_possibleDeposito"
-                            style="color: white; width: 120px;">DEPOSITO</CButton>
+                            style="color: white; width: 130px;">DEPOSITO</CButton>
                               </div>
                             </template>
                           </CWidgetStatsF>
@@ -78,7 +78,7 @@
                             <template #value>
                               <div class="text-center d-flex align-items-center">
                                 <CButton color="danger" shape="rounded-pill" class="custom-btn" @click="check_possibleSaque"
-                            style="color: white;width: 120px;">SAQUE</CButton>
+                            style="color: white;width: 130px;">SAQUE</CButton>
                               </div>
                             </template>
                           </CWidgetStatsF>

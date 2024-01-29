@@ -13,6 +13,7 @@
                   <CTableHeaderCell class="bg-body-secondary text-center"> Quantidade </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Tipo</CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Valor </CTableHeaderCell>
+                  <CTableHeaderCell class="bg-body-secondary text-center"> Data</CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Status </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center">  </CTableHeaderCell>
 
@@ -25,6 +26,7 @@
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByType(item.tipoOrdem)"> {{ getTypeByType(item.tipoOrdem) }} </CBadge> </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ formatarValores(item.valorOrdem) }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> {{ formatarData(item.dataLancamento) }} </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByStatus(item.statusOrdem)"> {{ item.statusOrdem }} </CBadge> </div> </CTableDataCell>                
                 <CTableDataCell> <CButton color="danger" shape="rounded-pill" class="px-12" @click="deteleOrder(item.id)" style="color: white;"> Cancelar ordem</CButton> </CTableDataCell>
 
@@ -114,6 +116,7 @@ export default {
                 return {
                     id: ordem.id,
                     idAtivo: ordem.idAtivo,
+                    dataLancamento: ordem.dataLancamento,
                     sigla: ordem.sigla,
                     idCliente: ordem.idCliente,
                     quantidadeOrdem: ordem.quantidadeOrdem,
@@ -180,6 +183,15 @@ export default {
         maximumFractionDigits: 2
       }).format(item );
     },
+    formatarData(item){
+    const ano = item.substring(2, 4)
+    const mes = item.substring(5, 7)
+    const dia = item.substring(8, 10)
+    const hora = item.substring(11, 13)
+    const minuto = item.substring(14, 16)
+    const formatado = `${dia}/${mes}/${ano} às ${hora}:${minuto}`
+    return formatado
+  }
   },
 
   /*  FINISH FUNC'S    */
