@@ -97,7 +97,7 @@
           <CCardBody style="padding: 10px;">
             <CRow>
               <CCol :md="6">
-            <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example">
+            <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
               <option value="7" active>Últimos 7 dias</option>
               <option value="30">Últimos 30 dias</option>
               <option value="90">Últimos 90 dias</option>
@@ -105,7 +105,7 @@
             </CFormSelect>
               </CCol>
               <CCol :md="6">
-            <CFormSelect v-model="escala" size="sm" class="mb-3" aria-label="Small select example">
+            <CFormSelect v-model="escala" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
               <option value="minute">Minuto</option>
               <option value="hour">Hora</option>
               <option value="day">Dia</option>
@@ -470,6 +470,7 @@ export default {
           valorAtivoValue: 0,
           escala:"day",
           periodo:"7",
+          idAtivo:0,
     }
   },
   methods:{
@@ -501,6 +502,7 @@ export default {
         maximumFractionDigits: 2
       }).format(item.valor);
 
+
       // console.log("escala",this.escala)
       // console.log("periodo",this.periodo)
 
@@ -527,7 +529,6 @@ export default {
       }
 
     },
-
     async Order(value){
 
                   if(this.selectedOption == false){
@@ -653,37 +654,9 @@ export default {
   sendMessage(message) {
     console.log(this.connection);
     this.connection.send(message);
-  },
-
-  
-  async wsSocket() {
-    const token = localStorage.getItem('token');
-    document.cookie = 'X-Authorization=' + token + '; path=/';
-    this.connection = new WebSocket("ws://localhost:8086/dash");
-
-    this.connection.onopen = (event) => { 
-      console.log("WS conectado");
-    };
-
-    this.connection.onmessage = (event) => { 
-      var jsonObj = JSON.parse(event.data); 
-      
-    };
-
-    this.connection.onerror = (event) => { // Usando arrow function
-      console.error("Erro no WebSocket:", event);
-    };
-
-    this.connection.onclose = (event) => { // Usando arrow function
-      console.log("Conexão WS fechada:", event);
-    };
-  }
 
   },
-
-  
-  /*  FINISH FUNC'S    */
-    async wsSocket(){
+  async wsSocket(){
     const token = localStorage.getItem('token')
       document.cookie = 'X-Authorization=' + token + '; path=/';
         this.connection = new WebSocket("ws://localhost:8086/dash")
@@ -694,20 +667,30 @@ export default {
       }
 
       this.connection.onmessage = (event) => {
-        
+
         var jsonObj = JSON.parse(event.data); 
+
 
         if(jsonObj.tipo == "ativo"){
           console.log("jsonObj")
-          console.log(jsonObj)
-          console.log("vetorAtivos")
-          console.log(this.vetorAtivos)
+        console.log(jsonObj)
+        console.log("vetorAtivos")
+        console.log(this.vetorAtivos)
+
           const index = this.vetorAtivos.findIndex(ativo => ativo.id === jsonObj.dados.id);
           console.log(index)
           if (index != -1) {
             console.log("entrou")
-         
-            const updateAtivo = {
+
+
+            const data = new Date(timestamp);
+            const ano = data.getFullYear();
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const dia = String(data.getDate()).padStart(2, '0');
+            const dataLancamento = `${dia}/${mes}/${ano}`;
+
+
+          const updateAtivo = {
             id: jsonObj.dados.id,
             id_empresa: this.vetorAtivos[index].id_empresa,
             atualizacao: dataLancamento,
@@ -718,7 +701,7 @@ export default {
             valorMax: this.vetorAtivos[index].valorMax,
             valorMin: this.vetorAtivos[index].valorMin
           };
-          
+
         this.vetorAtivos.splice(index,1)
         this.vetorAtivos.unshift(updateAtivo)
         // this.vetorAtivos[index] = updateAtivo
@@ -730,13 +713,31 @@ export default {
     console.error("Erro no WebSocket:", event);
   };
   
-  // Evento disparado quando a conexão é fechada
-  this.connection.onclose = function(event) {
-      console.log("Conexão WS fechada:", event);
-  };
+
+// Evento disparado quando a conexão é fechada
+this.connection.onclose = (event) =>  {
+    console.log("Conexão WS fechada:", event);
+};
 
   },
+  getDateTime(timestamp){
 
+const currentDate = new Date();
+const data = new Date(timestamp);
+
+const ano = data.getFullYear();
+const mes = String(data.getMonth() + 1).padStart(2, '0');
+const dia = String(data.getDate()).padStart(2, '0');
+const hora = String(data.getHours()).padStart(2, '0');
+const minuto = String(data.getMinutes()).padStart(2, '0');
+const segundo = String(data.getSeconds()).padStart(2, '0');
+const milissegundo = String(data.getMilliseconds()).padStart(3, '0');
+const dataLancamento = `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}.${milissegundo}`;
+
+return dataLancamento
+}
+
+  },
   mounted() {
     this.Ativos();
     this.getProfile();

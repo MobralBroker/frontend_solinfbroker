@@ -24,7 +24,7 @@
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByType(item.tipoOrdem)"> {{ getTypeByType(item.tipoOrdem) }} </CBadge> </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ item.valorOrdem }} </div> </CTableDataCell>
-                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ item.dataLancamento }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ formatarData(item.dataLancamento) }} </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByStatus(item.statusOrdem)"> {{ item.statusOrdem }} </CBadge> </div> </CTableDataCell>                
 
               </CTableRow>
@@ -257,7 +257,18 @@ export default {
     this.connection.onclose = (event) => { // Usando arrow function
       console.log("Conexão WS fechada:", event);
     };
+  },
+
+  formatarData(item){
+    const ano = item.substring(2, 4)
+    const mes = item.substring(5, 7)
+    const dia = item.substring(8, 10)
+    const hora = item.substring(11, 13)
+    const minuto = item.substring(14, 16)
+    const formatado = `${dia}/${mes}/${ano} às ${hora}:${minuto}`
+    return formatado
   }
+
 
   },
 
