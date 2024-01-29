@@ -51,7 +51,6 @@
                             @change="handleRadioChange(false)"
                           />
                         </CButtonGroup>
-                        <p>A opção selecionada é: {{ this.selectedOption}}</p>
 
                         <br>
                       </CListGroup>
@@ -494,24 +493,29 @@ export default {
         maximumFractionDigits: 2
       }).format(item.valor);
 
-      console.log("escala",this.escala)
-      console.log("periodo",this.periodo)
+      // console.log("escala",this.escala)
+      // console.log("periodo",this.periodo)
 
-      const res = await service.buscarHistorico(item.id, this.escala,this.periodo );
+      const responseData = await service.buscarHistorico(item.id, this.escala,this.periodo);
+      console.log("resposta hist ::: " ,responseData);
       
+      if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
+          this.series = [{
+            data: responseData.data.map(item => ({
+              x: new Date(item.x),
+              y: [item.y[0], item.y[1], item.y[2], item.y[3]] // open,high,low,close
+            }))
+          }];
 
-      this.series = [{
-        data: res.data.map(item => ({
-          x: new Date(item.x),
-          y: [item.y[0], item.y[1], item.y[2], item.y[3]]  // Certifique-se de adaptar os nomes corretos
-        }))
-      }];
+      }else{
 
-      console.log("series21",this.series)
+      }
+     
+      // console.log("series21",this.series)
     },
 
     async Order(value){
-      
+
                   if(this.selectedOption == false){
                     this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
                   }else{
