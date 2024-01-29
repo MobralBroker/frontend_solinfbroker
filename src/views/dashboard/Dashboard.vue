@@ -90,7 +90,7 @@
           <CCardBody style="padding: 10px;">
             <CRow>
               <CCol :md="6">
-            <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example">
+            <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
               <option value="7" active>Últimos 7 dias</option>
               <option value="30">Últimos 30 dias</option>
               <option value="90">Últimos 90 dias</option>
@@ -98,7 +98,7 @@
             </CFormSelect>
               </CCol>
               <CCol :md="6">
-            <CFormSelect v-model="escala" size="sm" class="mb-3" aria-label="Small select example">
+            <CFormSelect v-model="escala" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
               <option value="minute">Minuto</option>
               <option value="hour">Hora</option>
               <option value="day">Dia</option>
@@ -463,6 +463,7 @@ export default {
           valorAtivoValue: 0,
           escala:"day",
           periodo:"7",
+          idAtivo:0,
     }
   },
   methods:{
@@ -493,23 +494,18 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(item.valor);
-
-      console.log("escala",this.escala)
-      console.log("periodo",this.periodo)
-
-      const res = await service.buscarHistorico(item.id, this.escala,this.periodo );
-      
-
+      this.idAtivo = item.id;
+      this.atualizarGrafico();
+    },
+    async atualizarGrafico(){
+      const res = await service.buscarHistorico(this.idAtivo, this.escala,this.periodo );
       this.series = [{
         data: res.data.map(item => ({
           x: new Date(item.x),
           y: [item.y[0], item.y[1], item.y[2], item.y[3]]  // Certifique-se de adaptar os nomes corretos
         }))
       }];
-
-      console.log("series21",this.series)
     },
-
     async Order(value){
       
                   if(this.selectedOption == false){
@@ -635,40 +631,64 @@ export default {
   sendMessage(message) {
     console.log(this.connection);
     this.connection.send(message);
-  }
-
   },
-
-  
-  /*  FINISH FUNC'S    */
-
-  created: function () {
+  async wsSocket(){
     const token = localStorage.getItem('token')
       document.cookie = 'X-Authorization=' + token + '; path=/';
         this.connection = new WebSocket("ws://localhost:8086/dash")
     
-      this.connection.onopen = function (event){
+      this.connection.onopen = (event) => {
         console.log(event)
         console.log("WS conectado")
       }
 
-      this.connection.onmessage = function(event){
-        console.log(event.data)
+      this.connection.onmessage = (event) => {
+        var jsonObj = JSON.parse(event.data); 
+
+
+        if(jsonObj.tipo == "ativo"){
+          console.log("jsonObj")
+        console.log(jsonObj)
+        console.log("vetorAtivos")
+        console.log(this.vetorAtivos)
+          const index = this.vetorAtivos.findIndex(ativo => ativo.id === jsonObj.dados.id);
+          console.log(index)
+          if (index != -1) {
+            console.log("entrou")
+          const updateAtivo = {
+            id: jsonObj.dados.id,
+            id_empresa: this.vetorAtivos[index].id_empresa,
+            atualizacao: new Date(jsonObj.dados.atualizacao),
+            sigla: this.vetorAtivos[index].sigla,
+            valor: jsonObj.dados.valor,
+            nome: this.vetorAtivos[index].nome,
+            quantidadesPapeis: this.vetorAtivos[index].quantidadesPapeis,
+            valorMax: this.vetorAtivos[index].valorMax,
+            valorMin: this.vetorAtivos[index].valorMin
+          };
+        this.vetorAtivos.splice(index,1)
+        this.vetorAtivos.unshift(updateAtivo)
+        // this.vetorAtivos[index] = updateAtivo
+        }
       }
-      this.connection.onerror = function(event) {
+
+      }
+      this.connection.onerror = (event) =>  {
     console.error("Erro no WebSocket:", event);
   };
   
 // Evento disparado quando a conexão é fechada
-this.connection.onclose = function(event) {
+this.connection.onclose = (event) =>  {
     console.log("Conexão WS fechada:", event);
 };
 
-  },
+  }
 
+  },
   mounted() {
     this.Ativos();
     this.getProfile();
+    this.wsSocket();
   },
 }
 </script>
