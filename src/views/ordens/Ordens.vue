@@ -1,5 +1,13 @@
 <template>
   <div>
+    <CCol :md="12">
+        <CCard class="mb-4">
+          <CCardHeader>Minhas Ordens</CCardHeader>
+        </CCard>
+    </CCol>
+
+
+
       <CCol :md="12">
         
         <CCard class="mb-4">
@@ -80,7 +88,7 @@ export default {
           return 'warning'; // substitua 'status2' pela condição real
         default:
           return 'success'; // cor padrão para outros casos
-      }
+      }s
     },
 
     getTypeByType(tipoOrdem) {
