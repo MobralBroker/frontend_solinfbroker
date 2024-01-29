@@ -65,14 +65,14 @@ export default{
         })
         return response.data;
     },
-    async buscarHistorico(id){
+    async buscarHistorico(id, escala, periodo){
         console.log("id",id)
         const token = localStorage.getItem('token');        
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-        const response = await crudApi.get('/historico-preco/grafico/'+id+'?dataInicial=2024-01-25T00:00:00.00&dataFinal=2024-01-28T23:59:59&periodo=minute',{
+        const response = await crudApi.get('/historico-preco/grafico/'+id+'?escala='+escala+'&periodo='+periodo,{
             headers: {
                 'Authorization': `Bearer ${token}`,
                 
