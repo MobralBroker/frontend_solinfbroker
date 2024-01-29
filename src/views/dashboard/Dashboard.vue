@@ -51,29 +51,13 @@
                             @change="handleRadioChange(false)"
                           />
                         </CButtonGroup>
-
                         <br>
                       </CListGroup>
 
                       <CButton color="success" shape="rounded-pill" class="px-8" @click="check_possibleBuy()" style="color: white; width: 100%;">Enviar Ordem</CButton>
 
-
                     </CCol>
 
-
-                    <!-- <CCol :xs="6">
-                      <CCol :xs="10">
-                        <CWidgetStatsF color="info" :padding="false" :title="userProfile.email" :value="userProfile.nomeUsuario" >
-                          <template #icon><CIcon icon="cil-people" size="xl"/> </template>
-                        </CWidgetStatsF>
-
-                      </CCol>
-                      <br>
-                      <CCol :xs="10">
-                            <template #icon><CIcon icon="cil-dollar" size="xl"/> </template>
-                        </CWidgetStatsF>
-                      </CCol>
-                    </CCol> -->
                   </CRow>
                 </CCardBody>
             </CCard>
@@ -83,7 +67,7 @@
       
       <CCol :md="8">
         <CCard :mb="4">
-          <CCardHeader>Chart</CCardHeader>
+          <CCardHeader> Ativo: {{selectedAtivo.sigla}}</CCardHeader>
           <CCardBody style="padding: 10px;">
           <CCard> 
           <CCardBody style="padding: 10px;">
@@ -482,7 +466,7 @@ export default {
       this.selectedAtivo.quantidadesPapeis = item.quantidadesPapeis
       this.selectedAtivo.valorMax = item.valorMax
       this.selectedAtivo.valorMin = item.valorMin
-      // this.selectedAtivo.valor = item.valor
+      this.selectedAtivo.valor = item.valor
 
 
         // Formatando o valor como moeda brasileira
@@ -496,9 +480,7 @@ export default {
       // console.log("escala",this.escala)
       // console.log("periodo",this.periodo)
 
-      const responseData = await service.buscarHistorico(item.id, this.escala,this.periodo);
-      console.log("resposta hist ::: " ,responseData);
-      
+      const responseData = await service.buscarHistorico(item.id, this.escala,this.periodo);      
       if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
           this.series = [{
             data: responseData.data.map(item => ({
@@ -508,10 +490,18 @@ export default {
           }];
 
       }else{
-
+        console.log(this.selectedAtivo.valor, this.selectedAtivo.valorMax, this.selectedAtivo.valorMin, this.selectedAtivo.valor);
+        this.series = [{
+            data: 
+            [
+              {
+                x: new Date(1538778600000),
+                y: [this.selectedAtivo.valor, this.selectedAtivo.valorMax, this.selectedAtivo.valorMin, this.selectedAtivo.valor]
+              }
+            ]
+          }];
       }
-     
-      // console.log("series21",this.series)
+
     },
 
     async Order(value){
@@ -639,7 +629,33 @@ export default {
   sendMessage(message) {
     console.log(this.connection);
     this.connection.send(message);
+  },
+
+  
+  async wsSocket() {
+    const token = localStorage.getItem('token');
+    document.cookie = 'X-Authorization=' + token + '; path=/';
+    this.connection = new WebSocket("ws://localhost:8086/dash");
+
+    this.connection.onopen = (event) => { 
+      console.log("WS conectado");
+    };
+
+    this.connection.onmessage = (event) => { 
+      var jsonObj = JSON.parse(event.data); 
+      
+    };
+
+    this.connection.onerror = (event) => { // Usando arrow function
+      console.error("Erro no WebSocket:", event);
+    };
+
+    this.connection.onclose = (event) => { // Usando arrow function
+      console.log("Conexão WS fechada:", event);
+    };
   }
+
+
 
   },
 
