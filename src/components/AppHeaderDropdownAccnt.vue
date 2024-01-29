@@ -4,7 +4,7 @@
       <CAvatar :src="avatar" size="md" />
     </CDropdownToggle>
     <CDropdownMenu class="pt-0">
-      <CDropdownHeader
+      <!-- <CDropdownHeader
         component="h6"
         class="bg-body-secondary text-body-secondary fw-semibold mb-2 rounded-top"
       >
@@ -27,7 +27,7 @@
         <CIcon icon="cil-dollar" /> Payments
         <CBadge color="secondary" class="ms-auto">{{ itemsCount }}</CBadge>
       </CDropdownItem>
-      <CDropdownDivider />
+      <CDropdownDivider /> -->
 
       <CDropdownItem>
         <CIcon icon="cil-lock-locked"  Logout />

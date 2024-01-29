@@ -107,6 +107,7 @@
                         icon: 'success',
                     }).then(()=>{
                         localStorage.setItem('userMail', this.email)
+                        localStorage.setItem('idCliente',token.id)
                         this.$router.push('/home')
                     })
                 }
