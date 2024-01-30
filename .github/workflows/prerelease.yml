@@ -35,4 +35,4 @@ jobs:
         with:
           context: .
           push: true
-          tags:  solinfbroker/frontend-broker-nginx:development
+          tags:  solinfbroker/frontend-nginx:development
