@@ -49,7 +49,7 @@
                           <CWidgetStatsF color="success" :padding="false" 
                             :value="'R$ ' + userProfile.saldo">
                             <template #icon >
-                                  <CFormInput 
+                                  <input 
                                   id="currencyInput"
                                   v-model="valorDeposito"
                                   @input="updateValueDeposito"
@@ -275,10 +275,10 @@ export default {
       console.log(saque_format)
       console.log(saque_formatCliente)
 
-      if (saque_format > saque_formatCliente) {
+      if (Number(saque_format) > Number(saque_formatCliente)) {
         swal('Aviso', 'O valor do saque solicitado excede o total da conta.', 'warning');
         return 'Tudo certo, valor não excede o saldo disponível'
-      }else{
+      }else if(Number(saque_format) <= Number(saque_formatCliente)){
         this.saque(saque_format)
       }
     },
