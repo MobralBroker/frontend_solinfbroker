@@ -210,35 +210,35 @@ export default {
 
     this.connection.onmessage = (event) => { 
       var jsonObj = JSON.parse(event.data); 
-      
+      console.log(jsonObj);
       if (Array.isArray(this.vetorOrderns)) {
       const index = this.vetorOrderns.findIndex(ordem => ordem.id === jsonObj.id);
 
       if (index !== -1) {
           const updateOrdem = {
-          id: jsonObj.id,
-          idAtivo: jsonObj.id_ativo,
+          id: jsonObj.dados.id,
+          idAtivo: jsonObj.dados.id_ativo,
           dataLancamento: this.getDateTime(),
-          sigla: this.getSigla(jsonObj.id_ativo),
-          idCliente: jsonObj.id_cliente,
-          quantidadeOrdem: jsonObj.quantidade_ordem,
-          statusOrdem: jsonObj.status_ordem,
-          tipoOrdem: jsonObj.tipo_ordem,
-          valorOrdem: jsonObj.valor_ordem
+          sigla: this.getSigla(jsonObj.dados.id_ativo),
+          idCliente: jsonObj.dados.id_cliente,
+          quantidadeOrdem: jsonObj.dados.quantidade_ordem,
+          statusOrdem: jsonObj.dados.status_ordem,
+          tipoOrdem: jsonObj.dados.tipo_ordem,
+          valorOrdem: jsonObj.dados.valor_orde
         };
       this.vetorOrderns[index] = updateOrdem
       
     } else {
         const novaOrdem = {
-          id: jsonObj.id,
-          idAtivo: jsonObj.id_ativo,
+          id: jsonObj.dados.id,
+          idAtivo: jsonObj.dados.id_ativo,
           dataLancamento: this.getDateTime(),
-          sigla: this.getSigla(jsonObj.id_ativo), 
-          idCliente: jsonObj.id_cliente,
-          quantidadeOrdem: jsonObj.quantidade_ordem,
-          statusOrdem: jsonObj.status_ordem,
-          tipoOrdem: jsonObj.tipo_ordem,
-          valorOrdem: jsonObj.valor_ordem
+          sigla: this.getSigla(jsonObj.dados.id_ativo), 
+          idCliente: jsonObj.dados.id_cliente,
+          quantidadeOrdem: jsonObj.dados.quantidade_ordem,
+          statusOrdem: jsonObj.dados.status_ordem,
+          tipoOrdem: jsonObj.dados.tipo_ordem,
+          valorOrdem: jsonObj.dados.valor_ordem
         };
         this.vetorOrderns.push(novaOrdem);
       }

@@ -516,7 +516,6 @@ export default {
           }];
 
       }else{
-        console.log(this.selectedAtivo.valor, this.selectedAtivo.valorMax, this.selectedAtivo.valorMin, this.selectedAtivo.valor);
         this.series = [{
             data: 
             [
@@ -540,7 +539,6 @@ export default {
                    this.orderSellandBuy.idCliente = this.userProfile.id
                    this.orderSellandBuy.idAtivo = this.selectedAtivo.id
                    this.orderSellandBuy.valorOrdem = value
-                  console.log(this.orderSellandBuy);
                 try {
                     await service.sentOrder(this.orderSellandBuy);
                     swal('Sucesso', 'Ordem submetidas com sucesso!', 'success');
@@ -568,7 +566,6 @@ export default {
                     valor: item.valor
                   };
                 });
-                console.log(this.vetorAtivos)
               }            
             } catch(error){
               console.log(error)
@@ -577,7 +574,6 @@ export default {
 
     async getProfile(){
       const response = await service.getUserProfile();
-      console.log(response)
       try{
         this.userProfile = {   
             id: response.id,
@@ -592,7 +588,6 @@ export default {
     },
 
     check_possibleBuy(){
-      console.log("selectedOption ::: ", this.selectedOption)
 
       var valorOrdemFormat = this.valorAtivo
 
@@ -605,7 +600,6 @@ export default {
       } while (valorOrdemFormat.includes("."));
 
       valorOrdemFormat = valorOrdemFormat.replace(",", ".");
-      console.log(this.valorAtivoValue)
       if(this.selectedOption === false ){
         this.Order(valorOrdemFormat)
         return 'Ordem de venda, ignorar'
@@ -619,15 +613,10 @@ export default {
       }
       }
     },
-    updateValueSaque(event) {
 
+    updateValueSaque(event) {
       // Remover caracteres não numéricos, exceto ponto e vírgula
       const numericValue = parseFloat(event.target.value.replace(/[^\d]/g, ""));
-      
-      console.log(event.target.value)
-      console.log(numericValue)
-      console.log(this.valorAtivoValue)
-
       // Atualizar o valor bruto
       this.valorAtivoValue = isNaN(numericValue) ? 0 : numericValue;
 
@@ -669,31 +658,13 @@ export default {
       this.connection.onmessage = (event) => {
 
         var jsonObj = JSON.parse(event.data); 
-
-
         if(jsonObj.tipo == "ativo"){
-          console.log("jsonObj")
-        console.log(jsonObj)
-        console.log("vetorAtivos")
-        console.log(this.vetorAtivos)
-
           const index = this.vetorAtivos.findIndex(ativo => ativo.id === jsonObj.dados.id);
-          console.log(index)
           if (index != -1) {
-            console.log("entrou")
-
-
-            const data = new Date(timestamp);
-            const ano = data.getFullYear();
-            const mes = String(data.getMonth() + 1).padStart(2, '0');
-            const dia = String(data.getDate()).padStart(2, '0');
-            const dataLancamento = `${dia}/${mes}/${ano}`;
-
-
           const updateAtivo = {
             id: jsonObj.dados.id,
             id_empresa: this.vetorAtivos[index].id_empresa,
-            atualizacao: dataLancamento,
+            atualizacao: this.getDateTime(jsonObj.dados.atualizacao),
             sigla: this.vetorAtivos[index].sigla,
             valor: jsonObj.dados.valor,
             nome: this.vetorAtivos[index].nome,
@@ -701,6 +672,8 @@ export default {
             valorMax: this.vetorAtivos[index].valorMax,
             valorMin: this.vetorAtivos[index].valorMin
           };
+
+          console.log("updateAtivo ::::: ", updateAtivo)
 
         this.vetorAtivos.splice(index,1)
         this.vetorAtivos.unshift(updateAtivo)
@@ -714,27 +687,27 @@ export default {
   };
   
 
-// Evento disparado quando a conexão é fechada
-this.connection.onclose = (event) =>  {
-    console.log("Conexão WS fechada:", event);
-};
+  // Evento disparado quando a conexão é fechada
+  this.connection.onclose = (event) =>  {
+      console.log("Conexão WS fechada:", event);
+  };
 
   },
-  getDateTime(timestamp){
 
-const currentDate = new Date();
-const data = new Date(timestamp);
+  getDateTime(){
+    const currentDate = new Date();
+    const data = new Date(currentDate);
 
-const ano = data.getFullYear();
-const mes = String(data.getMonth() + 1).padStart(2, '0');
-const dia = String(data.getDate()).padStart(2, '0');
-const hora = String(data.getHours()).padStart(2, '0');
-const minuto = String(data.getMinutes()).padStart(2, '0');
-const segundo = String(data.getSeconds()).padStart(2, '0');
-const milissegundo = String(data.getMilliseconds()).padStart(3, '0');
-const dataLancamento = `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}.${milissegundo}`;
-
-return dataLancamento
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    const hora = String(data.getHours()).padStart(2, '0');
+    const minuto = String(data.getMinutes()).padStart(2, '0');
+    const segundo = String(data.getSeconds()).padStart(2, '0');
+    const milissegundo = String(data.getMilliseconds()).padStart(3, '0');
+    //const dataLancamento = `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}.${milissegundo}`;
+    const dataLancamento = `${dia}/${mes}/${ano}`;
+    return dataLancamento
 }
 
   },
