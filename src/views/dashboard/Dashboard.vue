@@ -706,6 +706,10 @@ export default {
         this.vetorAtivos.unshift(updateAtivo)
         // this.vetorAtivos[index] = updateAtivo
         }
+      }else if (jsonObj.tipo == "historico"){
+        console.log("historico")
+        console.log(jsonObj.dados)
+
       }
 
       }
