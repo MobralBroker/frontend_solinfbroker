@@ -1,28 +1,28 @@
 import { authenticationApi, crudApi } from "./api"
 
 export default{
-    
+
     /*   MS-AUTH  */
     async register(data){
         console.log(data)
-        const response=await authenticationApi.post('/auth/register', data)
+        const response=await authenticationApi.post('/register', data)
     },
 
     async login(user){
-        
-        const response = await authenticationApi.post('auth/login',user)
+
+        const response = await authenticationApi.post('/login',user)
         return  response.data
-          
+
     },
-    
+
     async getUserProfile(){
-        
-        const token = localStorage.getItem('token');        
+
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-        const idCliente = localStorage.getItem('idCliente');    
+        const idCliente = localStorage.getItem('idCliente');
         const response = await crudApi.get('/cliente/' + idCliente,{
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -35,8 +35,8 @@ export default{
 
     /*   MS-CRUD GERAL  */
     async sentOrder(data){
-        
-        const token = localStorage.getItem('token');        
+
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -47,13 +47,13 @@ export default{
                 'Authorization': `Bearer ${token}`,
             },
         })
-        
+
     },
 
 
     async getAtivos(){
-        
-        const token = localStorage.getItem('token');        
+
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -66,7 +66,7 @@ export default{
         return response.data;
     },
     async buscarHistorico(id, escala, periodo){
-        const token = localStorage.getItem('token');        
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -74,7 +74,7 @@ export default{
         const response = await crudApi.get('/historico-preco/grafico/'+id+'?escala='+escala+'&periodo='+periodo,{
             headers: {
                 'Authorization': `Bearer ${token}`,
-                
+
             },
         })
         return response.data;
@@ -83,19 +83,19 @@ export default{
     async getDeposito(idCliente, val){
        /* cliente/adicionar-saldo/7?valor=2342502 */
        const token = localStorage.getItem('token');
-    
+
        if (!token) {
            console.error('Token não encontrado. Faça o login para obter o token.');
            return;
        }
-   
+
        try {
            const response = await crudApi.put(`/cliente/adicionar-saldo/${idCliente}?valor=${val}`, null, {
                headers: {
                    'Authorization': `Bearer ${token}`,
                },
            });
-   
+
            return response.data;
        } catch (error) {
            console.error('Erro ao realizar saque:', error);
@@ -105,19 +105,19 @@ export default{
 
     async getSaque(idCliente, val) {
         const token = localStorage.getItem('token');
-    
+
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-    
+
         try {
             const response = await crudApi.put(`/cliente/sacar-saldo/${idCliente}?valor=${val}`, null, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             return response.data;
         } catch (error) {
             console.error('Erro ao realizar saque:', error);
@@ -127,19 +127,19 @@ export default{
 
     async getSaque(idCliente, val) {
         const token = localStorage.getItem('token');
-    
+
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-    
+
         try {
             const response = await crudApi.put(`/cliente/sacar-saldo/${idCliente}?valor=${val}`, null, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             return response.data;
         } catch (error) {
             console.error('Erro ao realizar saque:', error);
@@ -149,7 +149,7 @@ export default{
 
     async getOrdensClient(){
         const idClient = localStorage.getItem('idCliente')
-        const token = localStorage.getItem('token');        
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -160,12 +160,12 @@ export default{
                 'Authorization': `Bearer ${token}`,
             },
         })
-        
+
         return listOderns.data;
     },
     async getAcoesClient(){
         const idClient = localStorage.getItem('idCliente')
-        const token = localStorage.getItem('token');        
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -176,13 +176,13 @@ export default{
                 'Authorization': `Bearer ${token}`,
             },
         })
-        
+
         return listOderns.data;
     },
 
     async deleteOrdemClient(idOrdem, ordem){
-        
-        const token = localStorage.getItem('token');        
+
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -198,16 +198,16 @@ export default{
                 // 'Accept-Encoding': 'gzip, deflate, br',
                 // 'Connection': 'keep-alive',
                 },
-            
+
         });
         } catch (error) {
-        
+
         }
     },
 
     async getAllOrders(){
-        
-        const token = localStorage.getItem('token');        
+
+        const token = localStorage.getItem('token');
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
@@ -218,7 +218,7 @@ export default{
                 'Authorization': `Bearer ${token}`,
             },
         })
-        
+
         return listOderns.data;
     },
 
