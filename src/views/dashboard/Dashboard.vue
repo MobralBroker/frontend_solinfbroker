@@ -131,8 +131,26 @@
     <CRow>
     <CCol :md="12">
       <CCard class="mb-4" style="padding-bottom: 10px;">
-          <CCardHeader>Destaques de Mercado</CCardHeader>
+          <CCardHeader>
+            <CRow class="col-md-12">
+              <CCol class="align-self-start">
+              Destaques de Mercado
+            </CCol>
+            <CCol class="align-self-center">
+              <!-- One of three columns -->
+            </CCol>
+            <CCol class="justify-content-end">  
+              <CCol class="align-self-end"> 
+              <CFormInput v-model="filtro" placeholder="Digite para filtrar" class="mb-2"/>
+              </CCol> 
+            </CCol>
+            </CRow>
 
+          </CCardHeader>
+          <!-- <CRow style="margin-left: 20px; padding: 5px;"> -->
+            <!-- <CFormInput v-model="filtro" placeholder="Digite para filtrar" class="mb-2"  style="width: 200px;"/> -->
+          <!-- </CRow> -->
+          <CRow>
             <CTable align="middle" class="mb-1 border " responsive hover >
               <CTableHead class="text-nowrap">
                 <CTableRow>
@@ -164,6 +182,10 @@
                 
                 <CPaginationItem @click="mudarPagina('proximo')" :disabled="currentPage === totalPages">Próximo</CPaginationItem>
               </CPagination>
+          </CRow>
+          
+
+
         </CCard>
 
     </CCol>
@@ -485,14 +507,42 @@ export default {
           idAtivo:0,
           currentPage: 1,
           pageSize: 10,
+          filtro: "",
     }
   },
   computed: {
+    // paginatedItems() {
+    //   const startIndex = (this.currentPage - 1) * this.pageSize;
+    //   const endIndex = startIndex + this.pageSize;
+    //   return this.vetorAtivos.slice(startIndex, endIndex);
+    // },
     paginatedItems() {
       const startIndex = (this.currentPage - 1) * this.pageSize;
-      const endIndex = startIndex + this.pageSize;
-      return this.vetorAtivos.slice(startIndex, endIndex);
+    const endIndex = startIndex + this.pageSize;
+      
+    console.log("filtro");
+    console.log(this.filtro);
+
+    // Adicione o "return" aqui
+    return this.vetorAtivos.filter((item) => {
+      // Personalize a lógica de filtragem de acordo com suas necessidades
+      return (
+        item.sigla.toLowerCase().includes(this.filtro.toLowerCase()) ||
+        item.atualizacao.toLowerCase().includes(this.filtro.toLowerCase())
+        // Adicione outras condições conforme necessário
+      );
+    }).slice(startIndex, endIndex);
     },
+    // itensFiltrados() {
+    //   return this.vetorAtivos.filter((item) => {
+    //     // Personalize a lógica de filtragem de acordo com suas necessidades
+    //     return (
+    //       item.sigla.toLowerCase().includes(this.filtro.toLowerCase()) ||
+    //       item.atualizacao.toLowerCase().includes(this.filtro.toLowerCase())
+    //       // Adicione outras condições conforme necessário
+    //     );
+    //   });
+    // },
     totalPages() {
       console.log(Math.ceil(this.vetorAtivos.length / this.pageSize))
       return Math.ceil(this.vetorAtivos.length / this.pageSize);
