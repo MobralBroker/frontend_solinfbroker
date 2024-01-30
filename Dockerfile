@@ -1,18 +1,14 @@
-# Use uma imagem base com suporte ao Node.js
-FROM node:16
-
-# Defina o diretório de trabalho dentro do contêiner
-WORKDIR /usr/src/app
-
-# Copie os arquivos do aplicativo para o contêiner
+#Estágio de compilação
+FROM node:lts-alpine as build-stage
+WORKDIR /app
 COPY package*.json ./
-COPY . .
-
-# Instale as dependências
 RUN npm install
-
-# Construa o aplicativo
+COPY . .
 RUN npm run build
 
-# Comando para iniciar o aplicativo
-CMD [ "npm", "run", "serve" ]
+#Estágio de produção
+FROM nginx:stable-alpine as production-stage
+#Inclua o arquivo de configuração personalizado no diretório de trabalho do Nginx no estágio de compilação
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

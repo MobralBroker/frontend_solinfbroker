@@ -58,7 +58,7 @@
 
                 <div class="d-grid">
                   <CButton color="success"
-                    @click="this.valida_Registro(this.formUser.email, this.formUser.senha, this.formUser.pessoaFisica[0].cpf)">
+                    @click="valida_Registro(formUser.email, formUser.senha, formUser.pessoaFisica[0].cpf)">
                     Criar Conta</CButton>
                 </div>
               </CForm>

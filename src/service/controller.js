@@ -5,12 +5,12 @@ export default{
     /*   MS-AUTH  */
     async register(data){
         console.log(data)
-        const response=await authenticationApi.post('/auth/register', data)
+        const response=await authenticationApi.post('/register', data)
     },
 
     async login(user){
         
-        const response = await authenticationApi.post('auth/login',user)
+        const response = await authenticationApi.post('/login',user)
         return  response.data
           
     },
@@ -220,8 +220,24 @@ export default{
         })
         
         return listOderns.data;
-    },
+    },   
+    async getAllOrdersOpen(){
+        
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
 
+        const listOderns = await crudApi.get(`/ordem/aberta`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return listOderns.data;
+    },
+    
 }
 
 //localhost:8081/ordem/cancelar-ordem/7
