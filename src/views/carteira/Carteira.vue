@@ -44,15 +44,17 @@
                       <h4>
                         Operações
                       </h4>
-                      <CCol :xs="12" :sm="6" :md="4" class="mb-3">
+                      <CRow>
+                        <CCol :xs="12" :sm="6" :md="4" class="mb-3">
                           <CWidgetStatsF color="success" :padding="false" 
-                            :value="'R$ ' + this.userProfile.saldo">
+                            :value="'R$ ' + userProfile.saldo">
                             <template #icon >
-                                  <CFormInput 
+                                  <input 
                                   id="currencyInput"
                                   v-model="valorDeposito"
                                   @input="updateValueDeposito"
                                   placeholder="R$ 0,00"
+                                  class="form-control"
                                   style="width: 120px;"
                                     />
                             </template>
@@ -64,14 +66,17 @@
                             </template>
                           </CWidgetStatsF>
                       </CCol>
-                      <CCol :xs="12" :sm="6" :md="4" class="mb-3">
+                      </CRow>
+                      <CRow>
+                        <CCol :xs="12" :sm="6" :md="4" class="mb-3">
                           <CWidgetStatsF color="danger" :padding="false" >
                             <template #icon>
-                                  <CFormInput 
+                                  <input 
                                   id="currencyInput"
                                   v-model="valorSaque"
                                   @input="updateValueSaque"
                                   placeholder="R$ 0,00"
+                                  class="form-control"
                                   style="width: 120px;"
                                     />
                             </template>
@@ -83,6 +88,8 @@
                             </template>
                           </CWidgetStatsF>
                       </CCol>
+                      </CRow>
+
                     </CCardBody>
                   </CCard>
                 </CRow>
@@ -121,7 +128,7 @@ import swal from 'sweetalert';
 
 
 export default {
-  name: 'Dashboard',
+  name: 'Carteira',
   components: {
 
   },
@@ -268,10 +275,10 @@ export default {
       console.log(saque_format)
       console.log(saque_formatCliente)
 
-      if (saque_format > saque_formatCliente) {
+      if (Number(saque_format) > Number(saque_formatCliente)) {
         swal('Aviso', 'O valor do saque solicitado excede o total da conta.', 'warning');
         return 'Tudo certo, valor não excede o saldo disponível'
-      }else{
+      }else if(Number(saque_format) <= Number(saque_formatCliente)){
         this.saque(saque_format)
       }
     },

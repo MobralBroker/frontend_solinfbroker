@@ -28,7 +28,7 @@
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                <CTableRow v-for="item in vetorOrderns" :key="item.id"  >
+                <CTableRow v-for="(item, index) in paginatedItems" :key="index"  >
                   <CTableDataCell class="text-center text-bold"> <div style="font-weight: bold;">{{ item.id }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div> {{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
@@ -41,6 +41,16 @@
               </CTableRow>
               </CTableBody>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="mudarPagina('anterior')" :disabled="currentPage === 1">Anterior</CPaginationItem>
+                
+                <!-- Use v-for para gerar os CPaginationItem dinamicamente -->
+                <CPaginationItem v-for="pagina in paginas" :key="pagina" @click="mudarPagina(pagina)" :active="currentPage === pagina">
+                  {{ pagina }}
+                </CPaginationItem>
+                
+                <CPaginationItem @click="mudarPagina('proximo')" :disabled="currentPage === totalPages">Próximo</CPaginationItem>
+              </CPagination>
         </CCard>
       </CCol>
   </div>
@@ -50,6 +60,7 @@
 
 import service from '../../service/controller';
 import swal from 'sweetalert';
+import { CPagination, CPaginationItem } from "@coreui/vue";
 
 export default {
   name: 'Ordens',
@@ -78,10 +89,42 @@ export default {
             valorOrdem: null,
             quantidadeOrdem: null
 
-          },
+          },    
+          currentPage: 1,
+          pageSize: 10,
     }
   },
+  computed: {
+    paginatedItems() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.vetorOrderns.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      console.log(Math.ceil(this.vetorOrderns.length / this.pageSize))
+      return Math.ceil(this.vetorOrderns.length / this.pageSize);
+    },
+    paginas() {
+      const paginas = [];
+      for (let i = 1; i <= this.totalPages; i++) {
+        paginas.push(i);
+      }
+      return paginas;
+    },
+  },
   methods:{
+    mudarPagina(destino) {
+      if (destino === 'anterior') {
+        this.currentPage = Math.max(1, this.currentPage - 1);
+      } else if (destino === 'proximo') {
+        this.currentPage = Math.min(this.totalPages, this.currentPage + 1);
+      } else {
+        this.currentPage = destino;
+      }
+    },
+    onPageChange(newPage) {
+      this.currentPage = newPage;
+    },
     getColorByStatus(status) {
       switch (status) {
         case 'CANCELADA':
@@ -134,6 +177,9 @@ export default {
                 };
               });
               console.log(this.vetorOrderns)
+
+            this.currentPage = 1;
+              this.totalPages = Math.ceil(this.vetorOrderns.length / this.pageSize);       
             }            
           } catch(error){
             console.log(error)

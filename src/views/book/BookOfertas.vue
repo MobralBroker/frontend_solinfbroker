@@ -3,7 +3,7 @@
       <CCol :md="12">
         
         <CCard class="mb-4">
-          <CTable align="middle" class="mb-0 border" hover responsive>
+          <CTable align="middle" class="mb-1 border" hover responsive>
               <CTableHead class="text-nowrap">
                 <CTableRow>
                   <CTableHeaderCell class="bg-body-secondary text-center" > ID </CTableHeaderCell>
@@ -18,7 +18,7 @@
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                <CTableRow v-for="item in vetorOrderns" :key="item.id"  >
+                <CTableRow v-for="(item, index) in paginatedItems" :key="index"  >
                 <CTableDataCell class="text-center text-bold"> <div style="font-weight: bold;">{{ item.id }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div> {{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
@@ -31,6 +31,16 @@
               </CTableBody>
               
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="mudarPagina('anterior')" :disabled="currentPage === 1">Anterior</CPaginationItem>
+                
+                <!-- Use v-for para gerar os CPaginationItem dinamicamente -->
+                <CPaginationItem v-for="pagina in paginas" :key="pagina" @click="mudarPagina(pagina)" :active="currentPage === pagina">
+                  {{ pagina }}
+                </CPaginationItem>
+                
+                <CPaginationItem @click="mudarPagina('proximo')" :disabled="currentPage === totalPages">Próximo</CPaginationItem>
+              </CPagination>
         </CCard>
       </CCol>
   
@@ -41,9 +51,10 @@
 
 import service from '../../service/controller';
 import  crudEnvioDados  from "../../service/api";
+import { CPagination, CPaginationItem } from "@coreui/vue";
 
 export default {
-  name: 'Dashboard',
+  name: 'book',
   components: {
     
   },
@@ -70,26 +81,58 @@ export default {
             valorOrdem: null,
             quantidadeOrdem: null
 
-          },
+          },          
+          currentPage: 1,
+          pageSize: 10,
     }
   },
+  computed: {
+    paginatedItems() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.vetorOrderns.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      console.log(Math.ceil(this.vetorOrderns.length / this.pageSize))
+      return Math.ceil(this.vetorOrderns.length / this.pageSize);
+    },
+    paginas() {
+      const paginas = [];
+      for (let i = 1; i <= this.totalPages; i++) {
+        paginas.push(i);
+      }
+      return paginas;
+    },
+  },
   methods:{
+    mudarPagina(destino) {
+      if (destino === 'anterior') {
+        this.currentPage = Math.max(1, this.currentPage - 1);
+      } else if (destino === 'proximo') {
+        this.currentPage = Math.min(this.totalPages, this.currentPage + 1);
+      } else {
+        this.currentPage = destino;
+      }
+    },
+    onPageChange(newPage) {
+      this.currentPage = newPage;
+    },
     getColorByStatus(status) {
       switch (status) {
         case 'CANCELADA':
-          return 'warning'; // substitua 'status1' pela condição real
+          return 'secondary'; // substitua 'status1' pela condição real
         case 'ABERTA':
-          return 'success'; // substitua 'status2' pela condição real
+          return 'warning'; // substitua 'status2' pela condição real
         default:
-          return 'secondary'; // cor padrão para outros casos
+          return 'success'; // cor padrão para outros casos
       }
     },
 
     getTypeByType(tipoOrdem) {
       switch (tipoOrdem) {
-        case 'ORDEM_VENDA':
-          return 'Compra'; // substitua 'status1' pela condição real
         case 'ORDEM_COMPRA':
+          return 'Compra'; // substitua 'status1' pela condição real
+        case 'ORDEM_VENDA':
           return 'Venda'; // substitua 'status2' pela condição real
         default:
           return 'null'; // cor padrão para outros casos
@@ -98,9 +141,9 @@ export default {
     getColorByType(tipoOrdem) {
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
-          return 'info'; // substitua 'status1' pela condição real
+          return 'dark'; // substitua 'status1' pela condição real
         case 'ORDEM_COMPRA':
-          return 'success'; // substitua 'status2' pela condição real
+          return 'info'; // substitua 'status2' pela condição real
         default:
           return 'null'; // cor padrão para outros casos
       }
@@ -108,7 +151,7 @@ export default {
    
     async listarAllOrdens(){
       try{
-            const listOderns = await service.getAllOrders()
+            const listOderns = await service.getAllOrdersOpen()
             if (Array.isArray(listOderns)) {
               this.vetorOrderns = listOderns.map(ordem => {   
                 return {
@@ -124,7 +167,9 @@ export default {
                 };
               });
               //console.log(this.vetorOrderns)
-            }            
+            }
+            this.currentPage = 1;
+              this.totalPages = Math.ceil(this.vetorOrderns.length / this.pageSize);               
           } catch(error){
             console.log(error)
           }
@@ -211,38 +256,47 @@ export default {
 
     this.connection.onmessage = (event) => { 
       var jsonObj = JSON.parse(event.data); 
-      
-      if (Array.isArray(this.vetorOrderns)) {
-      const index = this.vetorOrderns.findIndex(ordem => ordem.id === jsonObj.id);
+      console.log(jsonObj);
+      if(jsonObj.tipo == "ordem"){
+        if (Array.isArray(this.vetorOrderns)) {
+      const index = this.vetorOrderns.findIndex(ordem => ordem.id === jsonObj.dados.id);
+      console.log("this.vetorOrderns",index);
+      console.log(this.vetorOrderns);
+ 
 
+  
       if (index !== -1) {
           const updateOrdem = {
-          id: jsonObj.id,
-          idAtivo: jsonObj.id_ativo,
+          id: jsonObj.dados.id,
+          idAtivo: jsonObj.dados.id_ativo,
           dataLancamento: this.getDateTime(),
-          sigla: this.getSigla(jsonObj.id_ativo),
-          idCliente: jsonObj.id_cliente,
-          quantidadeOrdem: jsonObj.quantidade_ordem,
-          statusOrdem: jsonObj.status_ordem,
-          tipoOrdem: jsonObj.tipo_ordem,
-          valorOrdem: jsonObj.valor_ordem
+          sigla: this.getSigla(jsonObj.dados.id_ativo),
+          idCliente: jsonObj.dados.id_cliente,
+          quantidadeOrdem: jsonObj.dados.quantidade_ordem,
+          statusOrdem: jsonObj.dados.status_ordem,
+          tipoOrdem: jsonObj.dados.tipo_ordem,
+          valorOrdem: jsonObj.dados.valor_orde
         };
       this.vetorOrderns[index] = updateOrdem
-      
+      this.vetorOrderns.splice(index, 1);
     } else {
         const novaOrdem = {
-          id: jsonObj.id,
-          idAtivo: jsonObj.id_ativo,
+          id: jsonObj.dados.id,
+          idAtivo: jsonObj.dados.id_ativo,
           dataLancamento: this.getDateTime(),
-          sigla: this.getSigla(jsonObj.id_ativo), 
-          idCliente: jsonObj.id_cliente,
-          quantidadeOrdem: jsonObj.quantidade_ordem,
-          statusOrdem: jsonObj.status_ordem,
-          tipoOrdem: jsonObj.tipo_ordem,
-          valorOrdem: jsonObj.valor_ordem
+          sigla: this.getSigla(jsonObj.dados.id_ativo), 
+          idCliente: jsonObj.dados.id_cliente,
+          quantidadeOrdem: jsonObj.dados.quantidade_ordem,
+          statusOrdem: jsonObj.dados.status_ordem,
+          tipoOrdem: jsonObj.dados.tipo_ordem,
+          valorOrdem: jsonObj.dados.valor_ordem
         };
-        this.vetorOrderns.push(novaOrdem);
+        this.vetorOrderns.unshift(novaOrdem);
       }
+      console.log("this.vetorOrderns");
+      console.log(this.vetorOrderns);
+      }
+     
   }
 
 
