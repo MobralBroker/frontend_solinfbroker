@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter ,createWebHashHistory} from 'vue-router'
 import NProgress from 'nprogress'
 
 import DefaultLayout from '@/layouts/DefaultLayout'
 
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
@@ -54,7 +54,7 @@ const router = createRouter({
 })
 
   router.beforeEach((to, from, next) => {
-     next()
+    // next()
      if (to.matched.some((record) => record.meta.requireAuth)) {
        if (localStorage.getItem('token') == null) {
          next({

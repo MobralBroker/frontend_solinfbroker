@@ -1,12 +1,17 @@
 <template>
   <div>
-    
-  
-      
+    <CCol :md="12">
+        <CCard class="mb-4">
+          <CCardHeader>Minhas Ordens</CCardHeader>
+        </CCard>
+    </CCol>
+
+
+
       <CCol :md="12">
         
         <CCard class="mb-4">
-          <CCardHeader>Ordens</CCardHeader>
+          <CCardHeader>Minhas Ordens</CCardHeader>
 
             <CTable align="middle" class="mb-0 border" hover responsive>
               <CTableHead class="text-nowrap">
@@ -16,44 +21,38 @@
                   <CTableHeaderCell class="bg-body-secondary text-center"> Quantidade </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Tipo</CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Valor </CTableHeaderCell>
+                  <CTableHeaderCell class="bg-body-secondary text-center"> Data</CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Status </CTableHeaderCell>
                   <CTableHeaderCell class="bg-body-secondary text-center">  </CTableHeaderCell>
 
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                <CTableRow v-for="item in vetorOrderns" :key="item.id"  >
+                <CTableRow v-for="(item, index) in paginatedItems" :key="index"  >
                   <CTableDataCell class="text-center text-bold"> <div style="font-weight: bold;">{{ item.id }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div> {{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByType(item.tipoOrdem)"> {{ getTypeByType(item.tipoOrdem) }} </CBadge> </div> </CTableDataCell>
-                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ item.valorOrdem }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ formatarValores(item.valorOrdem) }} </div> </CTableDataCell>
+                <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> {{ formatarData(item.dataLancamento) }} </div> </CTableDataCell>
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center "> <CBadge :color="getColorByStatus(item.statusOrdem)"> {{ item.statusOrdem }} </CBadge> </div> </CTableDataCell>                
                 <CTableDataCell> <CButton color="danger" shape="rounded-pill" class="px-12" @click="deteleOrder(item.id)" style="color: white;"> Cancelar ordem</CButton> </CTableDataCell>
 
               </CTableRow>
               </CTableBody>
-              
-              <br>
-              <div class="text-center">              
-                <CButton color="success"  class="px-8 text-center" @click="listarOrdens()" style="color: white;">Atualizar</CButton>
-              </div>
-              <br>
             </CTable>
+            <CPagination align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="mudarPagina('anterior')" :disabled="currentPage === 1">Anterior</CPaginationItem>
+                
+                <!-- Use v-for para gerar os CPaginationItem dinamicamente -->
+                <CPaginationItem v-for="pagina in paginas" :key="pagina" @click="mudarPagina(pagina)" :active="currentPage === pagina">
+                  {{ pagina }}
+                </CPaginationItem>
+                
+                <CPaginationItem @click="mudarPagina('proximo')" :disabled="currentPage === totalPages">Próximo</CPaginationItem>
+              </CPagination>
         </CCard>
-
-
-
-
       </CCol>
-
-
-            
-                        
-
-  
-  
-  
   </div>
 </template>
 
@@ -61,9 +60,10 @@
 
 import service from '../../service/controller';
 import swal from 'sweetalert';
+import { CPagination, CPaginationItem } from "@coreui/vue";
 
 export default {
-  name: 'Dashboard',
+  name: 'Ordens',
   components: {
     
   },
@@ -89,28 +89,59 @@ export default {
             valorOrdem: null,
             quantidadeOrdem: null
 
-          },
+          },    
+          currentPage: 1,
+          pageSize: 10,
     }
   },
+  computed: {
+    paginatedItems() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.vetorOrderns.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      console.log(Math.ceil(this.vetorOrderns.length / this.pageSize))
+      return Math.ceil(this.vetorOrderns.length / this.pageSize);
+    },
+    paginas() {
+      const paginas = [];
+      for (let i = 1; i <= this.totalPages; i++) {
+        paginas.push(i);
+      }
+      return paginas;
+    },
+  },
   methods:{
+    mudarPagina(destino) {
+      if (destino === 'anterior') {
+        this.currentPage = Math.max(1, this.currentPage - 1);
+      } else if (destino === 'proximo') {
+        this.currentPage = Math.min(this.totalPages, this.currentPage + 1);
+      } else {
+        this.currentPage = destino;
+      }
+    },
+    onPageChange(newPage) {
+      this.currentPage = newPage;
+    },
     getColorByStatus(status) {
       switch (status) {
         case 'CANCELADA':
-          return 'warning'; // substitua 'status1' pela condição real
+          return 'secondary'; // substitua 'status1' pela condição real
         case 'ABERTA':
-          return 'success'; // substitua 'status2' pela condição real
+          return 'warning'; // substitua 'status2' pela condição real
         default:
-          return 'secondary'; // cor padrão para outros casos
-      }
+          return 'success'; // cor padrão para outros casos
+      }s
     },
 
     getTypeByType(tipoOrdem) {
-      console.log(tipoOrdem)
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
-          return 'Compra'; // substitua 'status1' pela condição real
+          return 'Venda'; // substitua 'status1' pela condição real
         case 'ORDEM_COMPRA':
-          return 'Venda'; // substitua 'status2' pela condição real
+          return 'Compra'; // substitua 'status2' pela condição real
         default:
           return 'null'; // cor padrão para outros casos
       }
@@ -118,17 +149,17 @@ export default {
     getColorByType(tipoOrdem) {
       switch (tipoOrdem) {
         case 'ORDEM_VENDA':
-          return 'info'; // substitua 'status1' pela condição real
+          return 'dark'; // substitua 'status1' pela condição real
         case 'ORDEM_COMPRA':
-          return 'success'; // substitua 'status2' pela condição real
+          return 'info'; // substitua 'status2' pela condição real
         default:
           return 'null'; // cor padrão para outros casos
       }
     },
    
-    async listarOrdens(id){
+    async listarOrdens(){
       try{
-            const listOderns = await service.getOrdensClient(id)
+            const listOderns = await service.getOrdensClient()
             console.log(listOderns)
             if (Array.isArray(listOderns)) {
 
@@ -136,6 +167,7 @@ export default {
                 return {
                     id: ordem.id,
                     idAtivo: ordem.idAtivo,
+                    dataLancamento: ordem.dataLancamento,
                     sigla: ordem.sigla,
                     idCliente: ordem.idCliente,
                     quantidadeOrdem: ordem.quantidadeOrdem,
@@ -145,6 +177,9 @@ export default {
                 };
               });
               console.log(this.vetorOrderns)
+
+            this.currentPage = 1;
+              this.totalPages = Math.ceil(this.vetorOrderns.length / this.pageSize);       
             }            
           } catch(error){
             console.log(error)
@@ -153,7 +188,7 @@ export default {
 
     async getProfile(){
       const email = localStorage.getItem('userMail')
-      const response = await service.getUserProfile(email);
+      const response = await service.getUserProfile();
       console.log(response)
       try{
         this.userProfile = {   
@@ -184,26 +219,47 @@ export default {
             text: 'Ordem deletada!',
             icon: 'success',
           }).then(()=>{
-              console.log('deu certo')
+              
+              this.listarOrdens();
           });
       } catch(error){
         swal('Erro', 'Ocorreu um erro ao deletar a ordem T.T', 'error');
         console.log(error)
       }
   },
+  formatarValores(item) {
 
+      // Formatando o valor como moeda brasileira
+      return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(item );
+    },
+    formatarData(item){
+    const ano = item.substring(2, 4)
+    const mes = item.substring(5, 7)
+    const dia = item.substring(8, 10)
+    const hora = item.substring(11, 13)
+    const minuto = item.substring(14, 16)
+    const formatado = `${dia}/${mes}/${ano} às ${hora}:${minuto}`
+    return formatado
+  }
   },
 
   /*  FINISH FUNC'S    */
 
-  mounted() {
-    const idClient = localStorage.getItem('idCliente')
 
+
+
+
+  mounted() {
     this.getProfile();
-    this.listarOrdens(idClient);
+    this.listarOrdens();
 
   },
-
+  
 
 }
 </script>

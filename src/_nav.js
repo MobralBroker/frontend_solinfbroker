@@ -4,10 +4,7 @@ export default [
     name: 'Dashboard',
     to: '/home',
     icon: 'cil-speedometer',
-    badge: {
-      color: 'primary',
-      text: 'NEW',
-    },
+
   },
   {
     component: 'CNavTitle',
@@ -19,12 +16,12 @@ export default [
     to: '/carteira',
     icon: 'cilUser',
   },
-  {
-    component: 'CNavItem',
-    name: 'Minhas Ordens',
-    to: '/ordens',
-    icon: 'cilMagnifyingGlass',
-  },
+  // {
+  //   component: 'CNavItem',
+  //   name: 'Minhas Ordens',
+  //   to: '/ordens',
+  //   icon: 'cilMagnifyingGlass',
+  // },
   {
     component: 'CNavItem',
     name: 'Book de Ofertas',

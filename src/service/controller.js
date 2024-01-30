@@ -5,24 +5,29 @@ export default{
     /*   MS-AUTH  */
     async register(data){
         console.log(data)
-        const response=await authenticationApi.post('/auth/register', data)
+        const response=await authenticationApi.post('/register', data)
     },
 
     async login(user){
-            
-        const response = await authenticationApi.post('auth/login',user)
+        
+        const response = await authenticationApi.post('/login',user)
         return  response.data
           
     },
     
-    async getUserProfile(email){
+    async getUserProfile(){
         
         const token = localStorage.getItem('token');        
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
-        const response = await authenticationApi.get('/auth/usuario/' + email)
+        const idCliente = localStorage.getItem('idCliente');    
+        const response = await crudApi.get('/cliente/' + idCliente,{
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
         return response.data;
     },
 
@@ -56,6 +61,20 @@ export default{
         const response = await crudApi.get('/ativo',{
             headers: {
                 'Authorization': `Bearer ${token}`,
+            },
+        })
+        return response.data;
+    },
+    async buscarHistorico(id, escala, periodo){
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
+        const response = await crudApi.get('/historico-preco/grafico/'+id+'?escala='+escala+'&periodo='+periodo,{
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                
             },
         })
         return response.data;
@@ -128,15 +147,31 @@ export default{
         }
     },
 
-    async getOrdensClient(idCliente){
-        
+    async getOrdensClient(){
+        const idClient = localStorage.getItem('idCliente')
         const token = localStorage.getItem('token');        
         if (!token) {
             console.error('Token não encontrado. Faça o login para obter o token.');
             return;
         }
 
-        const listOderns = await crudApi.get(`/ordem/cliente/${idCliente}`, {
+        const listOderns = await crudApi.get(`/ordem/cliente/${idClient}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return listOderns.data;
+    },
+    async getAcoesClient(){
+        const idClient = localStorage.getItem('idCliente')
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
+
+        const listOderns = await crudApi.get(`/carteira/cliente/${idClient}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -170,7 +205,7 @@ export default{
         }
     },
 
-    async getAllOrderns(){
+    async getAllOrders(){
         
         const token = localStorage.getItem('token');        
         if (!token) {
@@ -185,8 +220,24 @@ export default{
         })
         
         return listOderns.data;
-    },
+    },   
+    async getAllOrdersOpen(){
+        
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
 
+        const listOderns = await crudApi.get(`/ordem/aberta`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return listOderns.data;
+    },
+    
 }
 
 //localhost:8081/ordem/cancelar-ordem/7
