@@ -53,6 +53,7 @@
                                   v-model="valorDeposito"
                                   @input="updateValueDeposito"
                                   placeholder="R$ 0,00"
+                                  class="form-control"
                                   style="width: 120px;"
                                     />
                             </template>
@@ -67,11 +68,12 @@
                       <CCol :xs="12" :sm="6" :md="4" class="mb-3">
                           <CWidgetStatsF color="danger" :padding="false" >
                             <template #icon>
-                                  <CFormInput 
+                                  <input 
                                   id="currencyInput"
                                   v-model="valorSaque"
                                   @input="updateValueSaque"
                                   placeholder="R$ 0,00"
+                                  class="form-control"
                                   style="width: 120px;"
                                     />
                             </template>

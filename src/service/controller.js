@@ -220,8 +220,24 @@ export default{
         })
         
         return listOderns.data;
-    },
+    },   
+    async getAllOrdersOpen(){
+        
+        const token = localStorage.getItem('token');        
+        if (!token) {
+            console.error('Token não encontrado. Faça o login para obter o token.');
+            return;
+        }
 
+        const listOderns = await crudApi.get(`/ordem/aberta`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+        
+        return listOderns.data;
+    },
+    
 }
 
 //localhost:8081/ordem/cancelar-ordem/7

@@ -41,12 +41,12 @@
                         <!--<CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla"> </CFormInput>-->
                         <CFormInput placeholder="Ativo" autocomplete="Ativo" v-model="selectedAtivo.sigla" class="mb-2" disabled/>
                         <!--<CFormInput placeholder="Valor" autocomplete="Valor" v-model="selectedAtivo.valor"/>-->
-                        <CFormInput
+                        <input
                                   id="currencyInput"
                                   v-model="valorAtivo"
                                   @input="updateValueSaque"
                                   placeholder="Valor"
-                                  class="mb-2" 
+                                  class="form-control mb-2" 
                                     />
                         <!-- <input class="mb-2" placeholder = "Valor" type="text" id="text" v-model="selectedAtivo.valor" v-maska:[maska_options] data-maska="0.99" data-maska-tokens="0:\d:multiple|9:\d:optional"> -->
                         <!--<CFormInput placeholder="Quantidade" autocomplete="username" v-model="orderSellandBuy.quantidadeOrdem" />-->
@@ -98,6 +98,8 @@
             <CRow>
               <CCol :md="6">
             <CFormSelect v-model="periodo" size="sm" class="mb-3" aria-label="Small select example" v-on:click="(atualizarGrafico())">
+              <option value="1" active>Último Dia</option>
+              <option value="3" active>Últimos 3 dias</option>
               <option value="7" active>Últimos 7 dias</option>
               <option value="30">Últimos 30 dias</option>
               <option value="90">Últimos 90 dias</option>
@@ -131,7 +133,7 @@
       <CCard class="mb-4" style="padding-bottom: 10px;">
           <CCardHeader>Destaques de Mercado</CCardHeader>
 
-            <CTable align="middle" class="mb-0 border " responsive hover >
+            <CTable align="middle" class="mb-1 border " responsive hover >
               <CTableHead class="text-nowrap">
                 <CTableRow>
                   <CTableHeaderCell class="bg-body-secondary text-center" > Ativo </CTableHeaderCell>
@@ -142,7 +144,7 @@
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                <CTableRow v-for="item in vetorAtivos" :key="item.id" v-on:click="(handleItemAtivo(item))" >
+                <CTableRow v-for="(item, index) in paginatedItems" :key="index" v-on:click="(handleItemAtivo(item))" >
                 <CTableDataCell class="text-center"> <div>{{ item.sigla }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div> {{ item.atualizacao }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ formatarValores(item.valorMax) }}</div> </CTableDataCell>
@@ -150,8 +152,18 @@
                 <CTableDataCell> <div class="fw-semibold text-nowrap text-center ">{{ formatarValores(item.valor) }} </div> </CTableDataCell>
               </CTableRow>
             </CTableBody>
+            
             </CTable>
-
+            <CPagination align="center" aria-label="Page navigation example">
+                <CPaginationItem @click="mudarPagina('anterior')" :disabled="currentPage === 1">Anterior</CPaginationItem>
+                
+                <!-- Use v-for para gerar os CPaginationItem dinamicamente -->
+                <CPaginationItem v-for="pagina in paginas" :key="pagina" @click="mudarPagina(pagina)" :active="currentPage === pagina">
+                  {{ pagina }}
+                </CPaginationItem>
+                
+                <CPaginationItem @click="mudarPagina('proximo')" :disabled="currentPage === totalPages">Próximo</CPaginationItem>
+              </CPagination>
         </CCard>
 
     </CCol>
@@ -165,7 +177,7 @@
 import service from '../../service/controller';
 import swal from 'sweetalert';
 import VueApexCharts from "vue3-apexcharts";
-import { CCol, CRow } from "@coreui/vue";
+import { CCol, CRow, CPagination, CPaginationItem } from "@coreui/vue";
 
 
 //Valores para v-mask
@@ -428,7 +440,7 @@ export default {
               height: 350
             },
             title: {
-              text: 'CandleStick Chart',
+              text: 'Gráfico de Velas',
               align: 'left'
             },
             xaxis: {
@@ -471,10 +483,41 @@ export default {
           escala:"day",
           periodo:"7",
           idAtivo:0,
+          currentPage: 1,
+          pageSize: 10,
     }
   },
+  computed: {
+    paginatedItems() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.vetorAtivos.slice(startIndex, endIndex);
+    },
+    totalPages() {
+      console.log(Math.ceil(this.vetorAtivos.length / this.pageSize))
+      return Math.ceil(this.vetorAtivos.length / this.pageSize);
+    },
+    paginas() {
+      const paginas = [];
+      for (let i = 1; i <= this.totalPages; i++) {
+        paginas.push(i);
+      }
+      return paginas;
+    },
+  },
   methods:{
-  
+    mudarPagina(destino) {
+      if (destino === 'anterior') {
+        this.currentPage = Math.max(1, this.currentPage - 1);
+      } else if (destino === 'proximo') {
+        this.currentPage = Math.min(this.totalPages, this.currentPage + 1);
+      } else {
+        this.currentPage = destino;
+      }
+    },
+    onPageChange(newPage) {
+      this.currentPage = newPage;
+    },
     handleRadioChange(isCompra) {
       if (isCompra) {
         this.selectedOption = true;
@@ -506,7 +549,13 @@ export default {
       // console.log("escala",this.escala)
       // console.log("periodo",this.periodo)
 
-      const responseData = await service.buscarHistorico(item.id, this.escala,this.periodo);      
+
+      this.idAtivo = item.id;
+      this.atualizarGrafico();
+
+    },
+    async atualizarGrafico(){
+      const responseData = await service.buscarHistorico(this.idAtivo, this.escala,this.periodo);      
       if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
           this.series = [{
             data: responseData.data.map(item => ({
@@ -526,7 +575,6 @@ export default {
             ]
           }];
       }
-
     },
     async Order(value){
 
@@ -566,7 +614,9 @@ export default {
                     valor: item.valor
                   };
                 });
-              }            
+              }        
+              this.currentPage = 1;
+              this.totalPages = Math.ceil(this.vetorAtivos.length / this.pageSize);    
             } catch(error){
               console.log(error)
             }
@@ -669,20 +719,62 @@ export default {
             valor: jsonObj.dados.valor,
             nome: this.vetorAtivos[index].nome,
             quantidadesPapeis: this.vetorAtivos[index].quantidadesPapeis,
-            valorMax: this.vetorAtivos[index].valorMax,
-            valorMin: this.vetorAtivos[index].valorMin
+            valorMax: jsonObj.dados.valor_max,
+            valorMin: jsonObj.dados.valor_min
           };
 
-          console.log("updateAtivo ::::: ", updateAtivo)
+          console.log("updateAtivo ::::: ", jsonObj.dados)
 
         this.vetorAtivos.splice(index,1)
         this.vetorAtivos.unshift(updateAtivo)
         // this.vetorAtivos[index] = updateAtivo
         }
       }else if (jsonObj.tipo == "historico"){
-        console.log("historico")
-        console.log(jsonObj.dados)
+        this.atualizarGrafico();
+        // const itemMaisRecente = this.series[0].data.reduce((itemRecente, itemAtual) => {
+        // const dataItemRecente = new Date(itemRecente.x);
+        // const dataItemAtual = new Date(itemAtual.x);
 
+        //   // Compare as datas e retorne o item com a data mais recente
+        //   return dataItemAtual > dataItemRecente ? itemAtual : itemRecente;
+        // }, this.series[0].data[0]); // Inicializando com o primeiro item para evitar problemas com um array vazio
+        // var open = itemMaisRecente.y[0];
+        // var high = itemMaisRecente.y[1];
+        // var low = itemMaisRecente.y[2];
+        // var close = itemMaisRecente.y[3];
+        // console.log("open", "high", "low", "close")
+        // console.log(open, high, low, close)
+        // if(jsonObj.dados.valor_do_ativo > high){
+        //   high = jsonObj.dados.valor_do_ativo;
+        // }else if(jsonObj.dados.valor_do_ativo < low){
+        //   low = jsonObj.dados.valor_do_ativo;
+        // }else{
+        //   high = jsonObj.dados.valor_do_ativo;
+        //   low = jsonObj.dados.valor_do_ativo;
+        // }
+        // var data = new Date(jsonObj.dados.data_valor)
+        // console.log(data)
+        // var newData = [{data:this.series[0].data.slice()}];
+        // console.log("newData")
+        // console.log(newData)
+
+        // newData[0].data.push({
+        //   x: data, // Substitua novaData pela sua nova data
+        //   y: [open, high, low, close] // Substitua pelos novos valores
+        // });
+
+        // console.log("this.seriesOLD")
+        // console.log(this.series)
+
+        // // this.series = [{ data: newData[0].data }];
+        // this.series = [{
+        //     data: newData[0].data.map(item => ({
+        //       x: new Date(item.x),
+        //       y: [item.y[0], item.y[1], item.y[2], item.y[3]] // open,high,low,close
+        //     }))
+        //   }];
+        // console.log("this.seriesNEW")
+        // console.log(this.series)
       }
 
       }
