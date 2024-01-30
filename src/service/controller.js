@@ -5,12 +5,12 @@ export default{
     /*   MS-AUTH  */
     async register(data){
         console.log(data)
-        const response=await authenticationApi.post('/auth/register', data)
+        const response=await authenticationApi.post('/register', data)
     },
 
     async login(user){
         
-        const response = await authenticationApi.post('auth/login',user)
+        const response = await authenticationApi.post('/login',user)
         return  response.data
           
     },

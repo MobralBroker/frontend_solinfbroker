@@ -53,7 +53,7 @@ import service from '../../service/controller';
 import { CPagination, CPaginationItem } from "@coreui/vue";
 
 export default {
-  name: 'Dashboard',
+  name: 'book',
   components: {
     
   },

@@ -44,9 +44,10 @@
                       <h4>
                         Operações
                       </h4>
-                      <CCol :xs="12" :sm="6" :md="4" class="mb-3">
+                      <CRow>
+                        <CCol :xs="12" :sm="6" :md="4" class="mb-3">
                           <CWidgetStatsF color="success" :padding="false" 
-                            :value="'R$ ' + this.userProfile.saldo">
+                            :value="'R$ ' + userProfile.saldo">
                             <template #icon >
                                   <CFormInput 
                                   id="currencyInput"
@@ -65,7 +66,9 @@
                             </template>
                           </CWidgetStatsF>
                       </CCol>
-                      <CCol :xs="12" :sm="6" :md="4" class="mb-3">
+                      </CRow>
+                      <CRow>
+                        <CCol :xs="12" :sm="6" :md="4" class="mb-3">
                           <CWidgetStatsF color="danger" :padding="false" >
                             <template #icon>
                                   <input 
@@ -85,6 +88,8 @@
                             </template>
                           </CWidgetStatsF>
                       </CCol>
+                      </CRow>
+
                     </CCardBody>
                   </CCard>
                 </CRow>
@@ -123,7 +128,7 @@ import swal from 'sweetalert';
 
 
 export default {
-  name: 'Dashboard',
+  name: 'Carteira',
   components: {
 
   },
