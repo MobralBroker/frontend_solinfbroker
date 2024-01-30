@@ -6,6 +6,7 @@ import axios from 'axios';
 
 const authenticationApi = axios.create({ baseURL: process.env.VUE_APP_AUTH_API_URL });
 const crudApi = axios.create({ baseURL: process.env.VUE_APP_CRUD_API_URL });
+const crudEnvioDados = process.env.VUE_APP_ENVIO_DADOS;
 
 
-export { authenticationApi, crudApi };
+export { authenticationApi, crudApi, crudEnvioDados };

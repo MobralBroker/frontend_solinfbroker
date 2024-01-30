@@ -40,6 +40,7 @@
 <script>
 
 import service from '../../service/controller';
+import  crudEnvioDados  from "../../service/api";
 
 export default {
   name: 'Dashboard',
@@ -202,7 +203,7 @@ export default {
     async wsSocket() {
     const token = localStorage.getItem('token');
     document.cookie = 'X-Authorization=' + token + '; path=/';
-    this.connection = new WebSocket("ws://localhost:8086/chat");
+    this.connection = new WebSocket(crudEnvioDados+"/chat");
 
     this.connection.onopen = (event) => { 
       console.log("WS conectado");
