@@ -50,7 +50,7 @@
 <script>
 
 import service from '../../service/controller';
-import  crudEnvioDados  from "../../service/api";
+import  {crudEnvioDados}  from "../../service/api";
 import { CPagination, CPaginationItem } from "@coreui/vue";
 
 export default {
@@ -248,8 +248,9 @@ export default {
     async wsSocket() {
     const token = localStorage.getItem('token');
     document.cookie = 'X-Authorization=' + token + '; path=/';
+    console.log(crudEnvioDados)
     this.connection = new WebSocket(crudEnvioDados+"/chat");
-
+    
     this.connection.onopen = (event) => { 
       console.log("WS conectado");
     };
