@@ -164,43 +164,82 @@ export default {
       return true
 
     },
-    validateCPF(value) {
-      var cpf_sum = 0
-      var cpf_remain = 0
-      var i = 0
-      if (!value) {
+
+
+    validateCPF(cpf) {
+      if (!cpf) {
         return 'Campo obrigatório!'
       }
-      if (value.includes('-') || value.includes('.')) {
-        value = value.replace("-", "")
-        value = value.replace(".", "")
-        value = value.replace(".", "")
-        this.formUser.pessoaFisica[0].cpf = value
+
+      if (cpf.includes('-') || cpf.includes('.')) {
+        cpf = cpf.replace("-", "")
+        cpf = cpf.replace(".", "")
+        cpf = cpf.replace(".", "")
+        this.formUser.pessoaFisica[0].cpf = cpf
+        console.log(cpf)
       }
-      for (i = 1; i <= 9; i++) {
-        cpf_sum = cpf_sum + parseInt(value.substring(i - 1, i)) * (11 - i)
-      }
-      cpf_remain = (cpf_sum * 10) % 11
-      if ((cpf_remain == 10) || (cpf_remain == 11)) {
-        cpf_remain = 0
-      }
-      if (cpf_remain != parseInt(value.substring(10, 11))) {
+
+      if (
+          cpf === "00000000000" ||
+          cpf === "11111111111" ||
+          cpf === "22222222222" ||
+          cpf === "33333333333" ||
+          cpf === "44444444444" ||
+          cpf === "55555555555" ||
+          cpf === "66666666666" ||
+          cpf === "77777777777" ||
+          cpf === "88888888888" ||
+          cpf === "99999999999" ||
+          cpf.length !== 11
+      ) {
+        console.log('CPF inválido');
         return 'CPF inválido'
       }
-      cpf_sum = 0
-      for (i = 1; i <= 10; i++) {
-        cpf_sum = cpf_sum + parseInt(value.substring(i - 1, i)) * (12 - i)
+
+      let dig10, dig11;
+      let sm, i, r, num, peso;
+
+      sm = 0;
+      peso = 10;
+      for (i = 0; i < 9; i++) {
+          num = parseInt(cpf.charAt(i), 10);
+          sm += num * peso;
+          peso -= 1;
       }
-      cpf_remain = (cpf_sum * 10) % 11
-      if ((cpf_remain == 10) || (cpf_remain == 11)) {
-        cpf_remain = 0
+
+      r = 11 - (sm % 11);
+      if (r === 10 || r === 11) {
+          dig10 = "0";
+      } else {
+          dig10 = String(r);
       }
-      if (cpf_remain != parseInt(value.substring(10, 11))) {
+
+      sm = 0;
+      peso = 11;
+      for (i = 0; i < 10; i++) {
+          num = parseInt(cpf.charAt(i), 10);
+          sm += num * peso;
+          peso -= 1;
+      }
+
+      r = 11 - (sm % 11);
+      if (r === 10 || r === 11) {
+          dig11 = "0";
+      } else {
+          dig11 = String(r);
+      }
+
+      if(dig10 === cpf.charAt(9) && dig11 === cpf.charAt(10)){
+        console.log('CPF VALIDO');
+        return true
+      }else{
+        console.log('CPF invalido');
         return 'CPF inválido'
       }
-      //All is good
-      return true
-    },
+
+},
+
+
     valida_Registro(email, senha, cpf) {
       //Recebe o resultado de cada um dos testes em uma variável
       var test1 = this.validateEmail(email)
