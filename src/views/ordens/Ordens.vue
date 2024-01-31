@@ -105,11 +105,27 @@ export default {
       return Math.ceil(this.vetorOrderns.length / this.pageSize);
     },
     paginas() {
-      const paginas = [];
+      var listaPaginasTotal = [];
+      var listaPaginas = []
+      console.log(this.totalPages)
       for (let i = 1; i <= this.totalPages; i++) {
-        paginas.push(i);
+          listaPaginasTotal.push(i);  
       }
-      return paginas;
+      if (this.totalPages > 8) {
+        if (this.currentPage > 3 && this.currentPage < this.totalPages - 3) {
+          listaPaginas = listaPaginasTotal.slice(this.currentPage - 4, this.currentPage + 4);
+        } else if (this.currentPage <= 3) {
+          listaPaginas = listaPaginasTotal.slice(0, 8);
+        } else {
+          listaPaginas = listaPaginasTotal.slice(-8);
+        }
+      } else {
+        listaPaginas = listaPaginasTotal;
+      }
+
+      // console.log(paginasVisivel)
+
+      return listaPaginas;
     },
   },
   methods:{
