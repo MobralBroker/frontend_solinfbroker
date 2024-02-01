@@ -12,7 +12,7 @@ import axios from 'axios';
 
 const authenticationApi = axios.create({ baseURL: "http://ec2-18-228-153-133.sa-east-1.compute.amazonaws.com:8081/auth/" });
 const crudApi = axios.create({ baseURL: "http://ec2-18-228-153-133.sa-east-1.compute.amazonaws.com:8081/api/" });
-const msEnvioDados = 'ws://ec2-18-228-153-133.sa-east-1.compute.amazonaws.com:8086/';
+const msEnvioDados = 'ws://ec2-18-228-153-133.sa-east-1.compute.amazonaws.com:8086';
 
 
 
