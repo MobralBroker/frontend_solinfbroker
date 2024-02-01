@@ -50,6 +50,7 @@
 <script>
 
 import service from '../../service/controller';
+import { msEnvioDados} from "../../service/api"
 import { CPagination, CPaginationItem } from "@coreui/vue";
 
 export default {
@@ -96,11 +97,27 @@ export default {
       return Math.ceil(this.vetorOrderns.length / this.pageSize);
     },
     paginas() {
-      const paginas = [];
+      var listaPaginasTotal = [];
+      var listaPaginas = []
+      console.log(this.totalPages)
       for (let i = 1; i <= this.totalPages; i++) {
-        paginas.push(i);
+          listaPaginasTotal.push(i);  
       }
-      return paginas;
+      if (this.totalPages > 8) {
+        if (this.currentPage > 3 && this.currentPage < this.totalPages - 3) {
+          listaPaginas = listaPaginasTotal.slice(this.currentPage - 4, this.currentPage + 4);
+        } else if (this.currentPage <= 3) {
+          listaPaginas = listaPaginasTotal.slice(0, 8);
+        } else {
+          listaPaginas = listaPaginasTotal.slice(-8);
+        }
+      } else {
+        listaPaginas = listaPaginasTotal;
+      }
+
+      // console.log(paginasVisivel)
+
+      return listaPaginas;
     },
   },
   methods:{
@@ -245,10 +262,11 @@ export default {
     },
 
     async wsSocket() {
-    const token = localStorage.getItem('token');
-    document.cookie = 'X-Authorization=' + token + '; path=/';
-    this.connection = new WebSocket("ws://localhost:8086/chat");
-
+    // const token = localStorage.getItem('token');
+    // document.cookie = 'X-Authorization=' + token + '; path=/';
+    console.log(msEnvioDados)
+    this.connection = new WebSocket(msEnvioDados+"/chat");
+    
     this.connection.onopen = (event) => { 
       console.log("WS conectado");
     };

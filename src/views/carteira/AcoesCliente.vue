@@ -9,7 +9,8 @@
               <CTableHead class="text-nowrap">
                 <CTableRow>
                   <CTableHeaderCell class="bg-body-secondary text-center"> Ativo </CTableHeaderCell>
-                  <CTableHeaderCell class="bg-body-secondary text-center"> Quantidade </CTableHeaderCell>
+                  <CTableHeaderCell class="bg-body-secondary text-center"> Quantidade Disponivel</CTableHeaderCell>
+                  <CTableHeaderCell class="bg-body-secondary text-center"> Quantidade Bloqueada</CTableHeaderCell>
                   <!-- <CTableHeaderCell class="bg-body-secondary text-center"> Data de Compra</CTableHeaderCell> -->
 
                 </CTableRow>
@@ -18,6 +19,7 @@
                 <CTableRow v-for="item in vetorAcoes" :key="item.id"  >
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.ativo }} </div> </CTableDataCell>
                 <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeOrdem }}</div> </CTableDataCell>
+                <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.quantidadeBloqueada }}</div> </CTableDataCell>
                 <!-- <CTableDataCell class="text-center"> <div class="fw-semibold">{{ item.dataCompra }}</div> </CTableDataCell> -->
            
               </CTableRow>
@@ -57,7 +59,8 @@ export default {
               this.vetorAcoes = listAcoes.map(acao => {   
                 return {
                     ativo: acao.sigla,
-                    quantidadeOrdem: acao.quantidade
+                    quantidadeOrdem: acao.quantidade,
+                    quantidadeBloqueada: acao.quantidadeBloqueada
                 };
               });
               console.log(this.vetorAcoes)

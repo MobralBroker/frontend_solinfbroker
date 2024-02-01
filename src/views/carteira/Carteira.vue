@@ -26,7 +26,7 @@
           <CCol :xs="12" class="mb-4" style="padding: 10px;">
             <CCard>
               <CCardBody style="padding: 30px;">
-                <CRow class="mb-3" v-if="activeTab === 0">
+                <CRow class="mb-3" v-if="activeTab === 0" >
                   <CCard>
                     <CCardBody>
                       <h4>
@@ -222,7 +222,7 @@ export default {
         this.updateValueDeposito({ target: { value: this.valorDeposito } });
         swal('Sucesso', 'Saque efetuado!', 'success');
       } catch (error) {
-        swal('Erro', 'Ocorreu um erro ao efetuar o saque T.T', 'error');
+        swal('Erro', error.response.data, 'error');
         console.log(error)
       }
     },
