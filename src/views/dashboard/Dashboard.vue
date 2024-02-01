@@ -200,7 +200,7 @@ import service from '../../service/controller';
 import swal from 'sweetalert';
 import VueApexCharts from "vue3-apexcharts";
 import { CCol, CRow, CPagination, CPaginationItem } from "@coreui/vue";
-import { crudEnvioDados } from "../../service/api"
+import { msEnvioDados } from "../../service/api"
 
 //Valores para v-mask
 
@@ -657,8 +657,8 @@ export default {
                     await service.sentOrder(this.orderSellandBuy);
                     swal('Sucesso', 'Ordem submetidas com sucesso!', 'success');
                     } catch (error) {
-                        console.error('Erro ao comprar ações:', error);
-                        swal('Erro', 'Ocorreu um erro ao processar sua ordem T.T', 'error');
+                        console.error('Erro ao comprar ações:', error.response.data);
+                        swal('Erro', error.response.data, 'error');
                     }
 
     },
@@ -762,9 +762,9 @@ export default {
 
   },
   async wsSocket(){
-    const token = localStorage.getItem('token')
-      document.cookie = 'X-Authorization=' + token + '; path=/';
-        this.connection = new WebSocket(crudEnvioDados+"/dash")
+    // const token = localStorage.getItem('token')
+    //   document.cookie = 'X-Authorization=' + token + '; path=/';
+        this.connection = new WebSocket(msEnvioDados+"/dash")
     
       this.connection.onopen = (event) => {
         console.log(event)

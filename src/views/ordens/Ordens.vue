@@ -232,7 +232,7 @@ export default {
       
       swal({
             title: 'Sucesso!',
-            text: 'Ordem deletada!',
+            text: 'Ordem Cancelada!',
             icon: 'success',
           }).then(()=>{
               

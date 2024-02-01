@@ -222,7 +222,7 @@ export default {
         this.updateValueDeposito({ target: { value: this.valorDeposito } });
         swal('Sucesso', 'Saque efetuado!', 'success');
       } catch (error) {
-        swal('Erro', 'Ocorreu um erro ao efetuar o saque T.T', 'error');
+        swal('Erro', error.response.data, 'error');
         console.log(error)
       }
     },
