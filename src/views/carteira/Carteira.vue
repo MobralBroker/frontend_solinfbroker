@@ -26,7 +26,7 @@
           <CCol :xs="12" class="mb-4" style="padding: 10px;">
             <CCard>
               <CCardBody style="padding: 30px;">
-                <CRow class="mb-3" v-if="activeTab === 0">
+                <CRow class="mb-3" v-if="activeTab === 0" >
                   <CCard>
                     <CCardBody>
                       <h4>
