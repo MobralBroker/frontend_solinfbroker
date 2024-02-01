@@ -496,7 +496,7 @@ export default {
           },
 
           vetorAtivos: [],
-          
+          vetorOrderns: [],
           userProfile: {
           },
           selectedOption: true,
@@ -520,7 +520,6 @@ export default {
       const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
       
-    console.log("filtro");
     console.log(this.filtro);
 
     // Adicione o "return" aqui
@@ -644,22 +643,31 @@ export default {
     },
     async Order(value){
 
-                  if(this.selectedOption == false){
-                    this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
-                  }else{
-                    this.orderSellandBuy.tipoOrdem = "ORDEM_COMPRA"
-                  }                  
-                   this.orderSellandBuy.quantidadeOrdem = parseInt( this.orderSellandBuy.quantidadeOrdem , 10)
-                   this.orderSellandBuy.idCliente = this.userProfile.id
-                   this.orderSellandBuy.idAtivo = this.selectedAtivo.id
-                   this.orderSellandBuy.valorOrdem = value
-                try {
-                    await service.sentOrder(this.orderSellandBuy);
-                    swal('Sucesso', 'Ordem submetidas com sucesso!', 'success');
-                    } catch (error) {
-                        console.error('Erro ao comprar ações:', error.response.data);
-                        swal('Erro', error.response.data, 'error');
-                    }
+
+        if(this.selectedOption == false){
+          this.orderSellandBuy.tipoOrdem = "ORDEM_VENDA"
+        }else{
+          this.orderSellandBuy.tipoOrdem = "ORDEM_COMPRA"
+        }
+
+          this.orderSellandBuy.quantidadeOrdem = parseInt( this.orderSellandBuy.quantidadeOrdem , 10)
+          this.orderSellandBuy.idCliente = this.userProfile.id
+          this.orderSellandBuy.idAtivo = this.selectedAtivo.id
+          this.orderSellandBuy.valorOrdem = value
+
+          if(this.chekPossibleOrder(this.orderSellandBuy) === false){
+            swal('Aviso', 'A Ordem já existe.', 'warning')
+            return false
+          }
+
+        try {
+            await service.sentOrder(this.orderSellandBuy);
+            swal('Sucesso', 'Ordem submetidas com sucesso!', 'success');
+            this.listarOrdens();
+            } catch (error) {
+                console.error('Erro ao comprar ações:', error);
+                swal('Erro', 'Ocorreu um erro ao processar sua ordem T.T', 'error');
+            }
 
     },
     
@@ -703,6 +711,48 @@ export default {
       }
     },
 
+    chekPossibleOrder(formulario){
+        var verify = true
+        this.vetorOrderns.forEach(ordem => {
+          if( 
+          (ordem.idAtivo === formulario.idAtivo) && 
+          (ordem.tipoOrdem === formulario.tipoOrdem) && 
+          (ordem.quantidadeOrdem === formulario.quantidadeOrdem ) && 
+          (ordem.statusOrdem === 'ABERTA')
+          ){
+           verify = false
+          }
+        })
+
+        return verify
+    },
+
+    async listarOrdens(){
+      try{
+            const listOderns = await service.getOrdensClient()
+            if (Array.isArray(listOderns)) {
+
+              this.vetorOrderns = listOderns.map(ordem => {   
+                return {
+                    id: ordem.id,
+                    idAtivo: ordem.idAtivo,
+                    dataLancamento: ordem.dataLancamento,
+                    sigla: ordem.sigla,
+                    idCliente: ordem.idCliente,
+                    quantidadeOrdem: ordem.quantidadeOrdem,
+                    statusOrdem: ordem.statusOrdem,
+                    tipoOrdem: ordem.tipoOrdem,
+                    valorOrdem: ordem.valorOrdem
+                };
+              });
+            this.currentPage = 1;
+              this.totalPages = Math.ceil(this.vetorOrderns.length / this.pageSize);       
+            }            
+          } catch(error){
+            console.log(error)
+          }
+    },
+
     check_possibleBuy(){
 
       var valorOrdemFormat = this.valorAtivo
@@ -711,10 +761,10 @@ export default {
       valorOrdemFormat = valorOrdemFormat.replace("$", "");
       valorOrdemFormat = valorOrdemFormat.replace(" ", "");
       valorOrdemFormat = valorOrdemFormat.trim();
+
       do {
         valorOrdemFormat = valorOrdemFormat.replace(".", "");
       } while (valorOrdemFormat.includes("."));
-
       valorOrdemFormat = valorOrdemFormat.replace(",", ".");
       if(this.selectedOption === false ){
         this.Order(valorOrdemFormat)
@@ -743,7 +793,7 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(this.valorAtivoValue /100);
-      console.log(this.valorAtivo)
+
     },
     formatarValores(item) {
 
@@ -788,8 +838,6 @@ export default {
             valorMax: jsonObj.dados.valor_max,
             valorMin: jsonObj.dados.valor_min
           };
-
-          console.log("updateAtivo ::::: ", jsonObj.dados)
 
         this.vetorAtivos.splice(index,1)
         this.vetorAtivos.unshift(updateAtivo)
@@ -877,6 +925,7 @@ export default {
     this.Ativos();
     this.getProfile();
     this.wsSocket();
+    this.listarOrdens();
   },
 }
 </script>
