@@ -657,8 +657,8 @@ export default {
                     await service.sentOrder(this.orderSellandBuy);
                     swal('Sucesso', 'Ordem submetidas com sucesso!', 'success');
                     } catch (error) {
-                        console.error('Erro ao comprar ações:', error);
-                        swal('Erro', 'Ocorreu um erro ao processar sua ordem T.T', 'error');
+                        console.error('Erro ao comprar ações:', error.response.data);
+                        swal('Erro', error.response.data, 'error');
                     }
 
     },
